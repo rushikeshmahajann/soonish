@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "1hundo-loaders": "file:packages/1hundo-loaders",
+    "mathjs": "^15.2.0",
     "next": "16.2.4",
     "postprocessing": "^6.39.3",
     "react": "19.2.4",

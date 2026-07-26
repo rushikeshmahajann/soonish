@@ -1,22 +1,28 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader } from "1hundo-loaders";
+import { Loader, getMatrix5Layout } from "1hundo-loaders";
 import type { LoaderName } from "1hundo-loaders";
 
 interface LiveLoaderProps {
   name: LoaderName;
   color?: string;
+  /** Total matrix span in px. */
   size?: number;
-  gap?: number;
+  /** Dot size in px. */
+  dotSize?: number;
+  /** Explicit gap override; when set, size is ignored. */
+  cellPadding?: number;
   speed?: number;
   label?: string;
 }
 
-export function LiveLoader({ name, color, size = 7, gap = 1, speed = 0.65, label }: LiveLoaderProps) {
+export function LiveLoader({ name, color, size = 24, dotSize = 3, cellPadding, speed = 0.65, label }: LiveLoaderProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const matrixSize = size * 8 + gap * 7;
+  // Placeholder must match the real matrix exactly or the tile jumps when the
+  // loader mounts, so it goes through the same layout resolver.
+  const { matrixSpan } = getMatrix5Layout(size, dotSize, cellPadding);
 
   useEffect(() => {
     const node = previewRef.current;
@@ -49,13 +55,13 @@ export function LiveLoader({ name, color, size = 7, gap = 1, speed = 0.65, label
       }}
     >
       {isVisible ? (
-        <Loader name={name} color={color} size={size} gap={gap} speed={speed} />
+        <Loader name={name} color={color} size={size} dotSize={dotSize} cellPadding={cellPadding} speed={speed} />
       ) : (
         <div
           aria-hidden="true"
           style={{
-            width: matrixSize,
-            height: matrixSize,
+            width: matrixSpan,
+            height: matrixSpan,
             borderRadius: 4,
             background: "rgba(255,255,255,0.04)",
           }}
@@ -73,15 +79,16 @@ export function LiveLoader({ name, color, size = 7, gap = 1, speed = 0.65, label
 interface LiveLoaderGridProps {
   loaders: { name: LoaderName; label?: string; color?: string }[];
   size?: number;
-  gap?: number;
+  dotSize?: number;
+  cellPadding?: number;
   speed?: number;
 }
 
-export function LiveLoaderGrid({ loaders, size = 7, gap = 1, speed = 0.8 }: LiveLoaderGridProps) {
+export function LiveLoaderGrid({ loaders, size = 24, dotSize = 3, cellPadding, speed = 0.8 }: LiveLoaderGridProps) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 gap-3 my-5">
       {loaders.map(({ name, label, color }) => (
-        <LiveLoader key={name} name={name} color={color} size={size} gap={gap} speed={speed} label={label ?? name} />
+        <LiveLoader key={name} name={name} color={color} size={size} dotSize={dotSize} cellPadding={cellPadding} speed={speed} label={label ?? name} />
       ))}
     </div>
   );

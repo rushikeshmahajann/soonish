@@ -334,10 +334,11 @@ void main(){
   else if (uShapeType == SHAPE_DIAMOND)  M = maskDiamond(pixelUV, coverage);
   else                                   M = coverage;
 
+  // Bottom-only fade. gl_FragCoord has its origin at the bottom-left, so
+  // norm.y == 0.0 is the bottom edge and the ramp finishes at uEdgeFade.
   if (uEdgeFade > 0.0) {
-    vec2 norm = gl_FragCoord.xy / uResolution;
-    float edge = min(min(norm.x, norm.y), min(1.0 - norm.x, 1.0 - norm.y));
-    float fade = smoothstep(0.0, uEdgeFade, edge);
+    float norm = gl_FragCoord.y / uResolution.y;
+    float fade = smoothstep(0.0, uEdgeFade, norm);
     M *= fade;
   }
 

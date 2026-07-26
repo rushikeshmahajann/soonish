@@ -131,20 +131,12 @@ function App() {
 <Loader name="jelly" />
 <Loader name="burst" />
 
-// Sprites (emoji)
-<Loader name="smiley" />
-<Loader name="rocket" />
-
 // Mandalas
 <Loader name="snowflake" />
-<Loader name="lotus" />
-
-// Stories
-<Loader name="mountain" />
-<Loader name="astronaut" />`}
+<Loader name="lotus" />`}
         />
         <p className="mt-4 text-sm" style={{ color: "#a1a1aa" }}>
-          See all 100 in the{" "}
+          See all 68 in the{" "}
           <Link href="/docs/loaders" style={{ color: "#d8d8d8", textDecoration: "underline" }}>All Loaders →</Link> page,
           or visit the{" "}
           <Link href="/" style={{ color: "#d8d8d8", textDecoration: "underline" }}>live showcase →</Link>

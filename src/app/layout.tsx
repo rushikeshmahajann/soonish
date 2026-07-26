@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Pixelify_Sans } from "next/font/google";
 import localFont from "next/font/local";
+import GradualBlur from "@/components/GradualBlur";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,9 +39,9 @@ const ppMori = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Pixel Loaders — 8×8 Matrix Animations",
+  title: "Pixel Loaders — 5×5 Matrix Animations",
   description:
-    "A library of 100 compact 8×8 matrix loading animations. Pure CSS with muted pastel colors.",
+    "A library of 68 compact 5×5 matrix loading animations. Pure CSS with muted pastel colors.",
 };
 
 export default function RootLayout({
@@ -58,7 +59,26 @@ export default function RootLayout({
       className={`${inter.className} ${jetbrainsMono.variable} ${pixelifySans.variable} ${ppMori.variable}`}
       suppressHydrationWarning
     >
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        {/* Site-wide bottom fade. target="page" makes it position:fixed, so it
+            pins to the viewport bottom on every route instead of anchoring to
+            a parent. The component adds +100 to zIndex when target is "page",
+            so this lands at 200 — above the docs header (z-50), below nothing
+            that matters. pointerEvents is none, so it never blocks clicks. */}
+        <GradualBlur
+          target="page"
+          position="bottom"
+          height="7rem"
+          strength={1}
+          saturation={1.5}
+          divCount={5}
+          curve="bezier"
+          exponential
+          opacity={1}
+          zIndex={100}
+        />
+      </body>
     </html>
   );
 }

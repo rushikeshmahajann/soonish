@@ -7,15 +7,13 @@ const TOC = [
   { id: "pulse",    title: "Pulse Wave",  level: 2 as const },
   { id: "ai",       title: "AI / Process",level: 2 as const },
   { id: "scale",    title: "Scale",       level: 2 as const },
-  { id: "sprites",  title: "Sprites",     level: 2 as const },
   { id: "mandalas", title: "Mandalas",    level: 2 as const },
-  { id: "stories",  title: "Stories",     level: 2 as const },
 ];
 
-function Section({ id, title, count, desc, loaders, size = 7, gap = 1 }: {
+function Section({ id, title, count, desc, loaders, size = 32, dotSize = 4 }: {
   id: string; title: string; count: number; desc: string;
   loaders: { name: LoaderName; label?: string }[];
-  size?: number; gap?: number;
+  size?: number; dotSize?: number;
 }) {
   return (
     <section className="mb-12">
@@ -31,7 +29,7 @@ function Section({ id, title, count, desc, loaders, size = 7, gap = 1 }: {
         </span>
       </div>
       <p className="text-sm mb-5" style={{ color: "#71717a", lineHeight: 1.6 }}>{desc}</p>
-      <LiveLoaderGrid loaders={loaders} size={size} gap={gap} />
+      <LiveLoaderGrid loaders={loaders} size={size} dotSize={dotSize} />
     </section>
   );
 }
@@ -48,7 +46,7 @@ export default function LoadersPage() {
           All Loaders
         </h1>
         <p className="text-lg mb-4" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
-          100 loaders across 5 categories. All built on the same 64-pixel grid.
+          68 loaders across 4 categories. All built on the same 25-pixel grid.
         </p>
         <p className="text-sm mb-8" style={{ color: "#52525b" }}>
           For the full interactive gallery with pagination,{" "}
@@ -60,7 +58,7 @@ export default function LoadersPage() {
         <Section
           id="pulse"
           title="Pulse Wave"
-          count={28}
+          count={27}
           desc="Brightness-pulse animations. Each pixel lights up in sequence, creating waves, ripples, spirals, and patterns."
           loaders={[
             { name: "sweep",       label: "sweep" },
@@ -116,27 +114,6 @@ export default function LoadersPage() {
         />
 
         <Section
-          id="sprites"
-          title="Sprites"
-          count={20}
-          desc="Fixed color pixel maps — emoji and icons. These loaders use multi-color pixel art rather than animation color. The color prop has no effect."
-          loaders={[
-            { name: "smiley",    label: "smiley" },
-            { name: "heart",     label: "heart" },
-            { name: "star",      label: "star" },
-            { name: "fire",      label: "fire" },
-            { name: "robot",     label: "robot" },
-            { name: "ghost",     label: "ghost" },
-            { name: "rocket",    label: "rocket" },
-            { name: "cat",       label: "cat" },
-            { name: "skull",     label: "skull" },
-            { name: "mushroom",  label: "mushroom" },
-            { name: "lightning", label: "lightning" },
-            { name: "diamond",   label: "diamond" },
-          ]}
-        />
-
-        <Section
           id="mandalas"
           title="Mandalas"
           count={15}
@@ -152,22 +129,6 @@ export default function LoadersPage() {
             { name: "star-burst",    label: "star-burst" },
             { name: "petal",         label: "petal" },
           ]}
-        />
-
-        <Section
-          id="stories"
-          title="Stories & Communication"
-          count={11}
-          desc="Multi-frame animations that cycle like pixel films. Stories tell tiny narratives; comm loaders are icon-sized status indicators."
-          loaders={[
-            { name: "mountain",   label: "mountain" },
-            { name: "fishing",    label: "fishing" },
-            { name: "astronaut",  label: "astronaut" },
-            { name: "treadmill",  label: "treadmill" },
-            { name: "envelope",   label: "envelope" },
-            { name: "bubble",     label: "bubble" },
-          ]}
-          size={8}
         />
       </main>
 

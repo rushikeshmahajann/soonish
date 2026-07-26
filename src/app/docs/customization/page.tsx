@@ -67,9 +67,8 @@ export default function CustomizationPage() {
         />
 
         <Callout type="note">
-          Sprite loaders (smiley, heart, robot, etc.) and story loaders (mountain, astronaut, etc.)
-          use fixed multi-color pixel maps. The <code style={{ fontFamily: "monospace" }}>color</code> prop
-          has no effect on these types.
+          Every loader responds to <code style={{ fontFamily: "monospace" }}>color</code> — the whole
+          5×5 grid is tinted from a single CSS variable, so one value restyles the animation.
         </Callout>
 
         {/* Size */}
@@ -86,19 +85,11 @@ export default function CustomizationPage() {
           code={`<Loader name="breathe" size={5}  />   // tiny
 <Loader name="breathe" size={7}  />   // default
 <Loader name="breathe" size={10} />   // medium
-<Loader name="breathe" size={14} />   // large`}
+<Loader name="breathe" size={40} />   // large`}
         />
 
-        <LiveLoaderGrid
-          loaders={[
-            { name: "breathe", label: "size={5}" },
-            { name: "breathe", label: "size={7}" },
-            { name: "breathe", label: "size={14}" },
-          ]}
-          size={undefined as unknown as number}
-        />
         <div className="grid grid-cols-3 gap-3 my-5">
-          {([5, 7, 14] as const).map((s) => (
+          {([18, 24, 40] as const).map((s) => (
             <LiveLoader key={s} name="breathe" size={s} label={`size=${s}`} />
           ))}
         </div>
@@ -116,15 +107,15 @@ export default function CustomizationPage() {
         <CodeBlock
           filename="gap-example.tsx"
           lang="tsx"
-          code={`<Loader name="checker" gap={0} />   // solid — pixels touch
-<Loader name="checker" gap={1} />   // default
-<Loader name="checker" gap={3} />   // airy
-<Loader name="checker" gap={5} />   // spacious`}
+          code={`<Loader name="checker" cellPadding={0} />   // solid — dots touch
+<Loader name="checker" cellPadding={2} />   // airy
+<Loader name="checker" cellPadding={4} />   // spacious
+<Loader name="checker" cellPadding={6} />   // very sparse`}
         />
 
         <div className="grid grid-cols-4 gap-3 my-5">
-          {([0, 1, 3, 5] as const).map((g) => (
-            <LiveLoader key={g} name="checker" gap={g} label={`gap=${g}`} />
+          {([0, 2, 4, 6] as const).map((g) => (
+            <LiveLoader key={g} name="checker" cellPadding={g} label={`cellPadding=${g}`} />
           ))}
         </div>
 
@@ -154,8 +145,8 @@ export default function CustomizationPage() {
         </div>
 
         <Callout type="tip">
-          Speed also affects story loaders — it adjusts the frame interval, making
-          the pixel animations play faster or slower.
+          Speed scales the CSS animation duration, so per-pixel delays stay proportional
+          and the wave pattern holds its shape at any speed.
         </Callout>
 
         {/* Combine */}
@@ -171,23 +162,23 @@ export default function CustomizationPage() {
           code={`import { Loader } from '1hundo-loaders';
 
 // Subtle background indicator
-<Loader name="breathe" color="#d8d8d8" size={7} gap={1} speed={0.6} />
+<Loader name="breathe" color="#d8d8d8" size={20} speed={0.6} />
 
 // Bold AI thinking indicator
-<Loader name="thinking" color="#c9d0f4" size={10} gap={1} speed={0.9} />
+<Loader name="thinking" color="#c9d0f4" size={32} dotSize={4} speed={0.9} />
 
 // Inline loading spinner
-<Loader name="ripple" color="#d7e9bd" size={6} gap={1} speed={1} />
+<Loader name="ripple" color="#d7e9bd" size={18} speed={1} />
 
 // Large hero animation
-<Loader name="plasma" size={12} gap={2} speed={0.7} />`}
+<Loader name="plasma" size={48} dotSize={6} speed={0.7} />`}
         />
 
         <div className="grid grid-cols-2 gap-3 my-5">
-          <LiveLoader name="breathe"  color="#d8d8d8" size={7}  gap={1} speed={0.6} label="subtle" />
-          <LiveLoader name="thinking" color="#c9d0f4" size={10} gap={1} speed={0.9} label="ai thinking" />
-          <LiveLoader name="ripple"   color="#d7e9bd" size={6} gap={1} speed={1} label="inline spinner" />
-          <LiveLoader name="plasma"   size={12} gap={2} speed={0.7} label="hero" />
+          <LiveLoader name="breathe"  color="#d8d8d8" size={20} speed={0.6} label="subtle" />
+          <LiveLoader name="thinking" color="#c9d0f4" size={32} dotSize={4} speed={0.9} label="ai thinking" />
+          <LiveLoader name="ripple"   color="#d7e9bd" size={18} speed={1} label="inline spinner" />
+          <LiveLoader name="plasma"   size={48} dotSize={6} speed={0.7} label="hero" />
         </div>
       </main>
 

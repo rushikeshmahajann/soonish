@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, type CSSProperties } from 'react';
+import React, { useEffect, type CSSProperties } from 'react';
 import { injectCSS } from './css';
 import { LOADER_REGISTRY } from './data/loaders';
-import type { LoaderProps, ProceduralDef, SpriteDef, StoryDef } from './types';
+import { GRID, CELLS } from './types';
+import { getMatrix5Layout } from './layout';
+import type { LoaderProps, ProceduralDef } from './types';
 
 const DEFAULT_ANIMATION_COLORS: Record<string, string> = {
   'pg-rain-fade': '#bee8dc',
@@ -57,119 +59,12 @@ const DEFAULT_ANIMATION_COLORS: Record<string, string> = {
   'pg-plasma': '#bfe7df',
 };
 
-// ---- Story frame renderer (pure, no React) ----
-function applyFrame(
-  pixels: (HTMLDivElement | null)[],
-  frame: string[],
-  palette: Record<string, string>,
-) {
-  for (let y = 0; y < 8; y++) {
-    const row = frame[y] ?? '........';
-    for (let x = 0; x < 8; x++) {
-      const ch = row[x] ?? '.';
-      const px = pixels[y * 8 + x];
-      if (!px) continue;
-      if (ch === '.' || !palette[ch]) {
-        px.classList.remove('on');
-        px.style.removeProperty('--c');
-      } else {
-        px.classList.add('on');
-        px.style.setProperty('--c', palette[ch]);
-      }
-    }
-  }
-}
-
-// ---- Story loader ----
-function StoryLoader({
-  def, size, gap, speed, className, style,
-}: { def: StoryDef; size: number; gap: number; speed: number; className?: string; style?: CSSProperties }) {
-  const pixelRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const frameRef = useRef(0);
-
-  useEffect(() => {
-    applyFrame(pixelRefs.current, def.frames[0], def.palette);
-    const ms = Math.max(160, (def.duration * 1000) / def.frames.length / speed);
-    const id = setInterval(() => {
-      if (document.hidden) return;
-      frameRef.current = (frameRef.current + 1) % def.frames.length;
-      applyFrame(pixelRefs.current, def.frames[frameRef.current], def.palette);
-    }, ms);
-    return () => clearInterval(id);
-  }, [def, speed]);
-
-  return (
-    <div
-      className={`hl-matrix sprite story${className ? ` ${className}` : ''}`}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(8, ${size}px)`,
-        gridTemplateRows: `repeat(8, ${size}px)`,
-        gap: `${gap}px`,
-        ...style,
-      } as CSSProperties}
-    >
-      {Array.from({ length: 64 }, (_, i) => (
-        <div
-          key={i}
-          className="hl-px"
-          ref={(el) => { pixelRefs.current[i] = el; }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ---- Sprite loader ----
-function SpriteLoader({
-  def, size, gap, speed, className, style,
-}: { def: SpriteDef; size: number; gap: number; speed: number; className?: string; style?: CSSProperties }) {
-  const actualDuration = def.matrixDuration / speed;
-
-  return (
-    <div
-      className={`hl-matrix sprite${className ? ` ${className}` : ''}`}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(8, ${size}px)`,
-        gridTemplateRows: `repeat(8, ${size}px)`,
-        gap: `${gap}px`,
-        animationName: def.matrixAnim,
-        animationDuration: `${actualDuration}s`,
-        animationTimingFunction: 'ease-in-out',
-        animationIterationCount: 'infinite',
-        ...style,
-      } as CSSProperties}
-    >
-      {Array.from({ length: 64 }, (_, i) => {
-        const x = i % 8;
-        const y = Math.floor(i / 8);
-        const ch = def.map[y]?.[x] ?? '.';
-        const color = ch !== '.' ? def.colors[ch] : undefined;
-        const isBlink = color && def.blinkChar && ch === def.blinkChar;
-        const isDetail = color && def.detailChar && ch === def.detailChar;
-
-        const classes = ['hl-px'];
-        if (color) classes.push('on');
-        if (isBlink) classes.push('blink-eye');
-        else if (isDetail) classes.push('detail');
-
-        const pxStyle: CSSProperties = {};
-        if (color) (pxStyle as Record<string, string>)['--c'] = color;
-        if (isDetail) pxStyle.animationDelay = `${(x * 0.05 + y * 0.07).toFixed(2)}s`;
-        else if (color && !isBlink) pxStyle.animationDelay = `${((x + y) * 0.08).toFixed(2)}s`;
-
-        return <div key={i} className={classes.join(' ')} style={pxStyle} />;
-      })}
-    </div>
-  );
-}
-
 // ---- Procedural loader ----
 function ProceduralLoader({
-  def, size, gap, speed, color, className, style,
-}: { def: ProceduralDef; size: number; gap: number; speed: number; color?: string; className?: string; style?: CSSProperties }) {
+  def, size, dotSize, cellPadding, speed, color, className, style,
+}: { def: ProceduralDef; size: number; dotSize: number; cellPadding?: number; speed: number; color?: string; className?: string; style?: CSSProperties }) {
   const duration = def.duration / speed;
+  const { gap, matrixSpan } = getMatrix5Layout(size, dotSize, cellPadding);
 
   const colorVars: Record<string, string> = {};
   colorVars['--loader-color'] = color ?? DEFAULT_ANIMATION_COLORS[def.animName] ?? '#bfe7df';
@@ -179,16 +74,22 @@ function ProceduralLoader({
       className={`hl-matrix${className ? ` ${className}` : ''}`}
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(8, ${size}px)`,
-        gridTemplateRows: `repeat(8, ${size}px)`,
+        gridTemplateColumns: `repeat(${GRID}, ${dotSize}px)`,
+        gridTemplateRows: `repeat(${GRID}, ${dotSize}px)`,
         gap: `${gap}px`,
+        // Span-driven mode leaves a few px of slack when the gap rounds down;
+        // centring the tracks keeps the matrix optically centred in its box.
+        width: `${matrixSpan}px`,
+        height: `${matrixSpan}px`,
+        justifyContent: 'center',
+        alignContent: 'center',
         ...colorVars,
         ...style,
       } as CSSProperties}
     >
-      {Array.from({ length: 64 }, (_, i) => {
-        const x = i % 8;
-        const y = Math.floor(i / 8);
+      {Array.from({ length: CELLS }, (_, i) => {
+        const x = i % GRID;
+        const y = Math.floor(i / GRID);
         const delay = def.delay(x, y, i);
         const skip = def.skipOnNine && delay === 999;
 
@@ -219,8 +120,9 @@ function ProceduralLoader({
 export function Loader({
   name,
   color,
-  size = 7,
-  gap = 1,
+  size = 24,
+  dotSize = 3,
+  cellPadding,
   speed = 1,
   className,
   style,
@@ -231,11 +133,16 @@ export function Loader({
   const def = LOADER_REGISTRY[slug];
   if (!def) return null;
 
-  if (def.kind === 'story') {
-    return <StoryLoader def={def} size={size} gap={gap} speed={speed} className={className} style={style} />;
-  }
-  if (def.kind === 'sprite') {
-    return <SpriteLoader def={def} size={size} gap={gap} speed={speed} className={className} style={style} />;
-  }
-  return <ProceduralLoader def={def} size={size} gap={gap} speed={speed} color={color} className={className} style={style} />;
+  return (
+    <ProceduralLoader
+      def={def}
+      size={size}
+      dotSize={dotSize}
+      cellPadding={cellPadding}
+      speed={speed}
+      color={color}
+      className={className}
+      style={style}
+    />
+  );
 }

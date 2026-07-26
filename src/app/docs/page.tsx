@@ -22,8 +22,8 @@ export default function IntroductionPage() {
           Introduction
         </h1>
         <p className="text-lg mb-8" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
-          A library of 100 animated 8×8 pixel grid loaders for React. Every loader is
-          built on the same 64-pixel grid — only the timing and per-pixel delay changes.
+          A library of 68 animated 5×5 pixel grid loaders for React. Every loader is
+          built on the same 25-pixel grid — only the timing and per-pixel delay changes.
         </p>
 
         <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.06)", marginBottom: "2rem" }} />
@@ -34,8 +34,8 @@ export default function IntroductionPage() {
         </h2>
         <p className="mb-4" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
           <strong style={{ color: "#fafafa" }}>1hundo-loaders</strong> is a zero-dependency React component library that
-          ships 100 loading animations, all built on an 8×8 pixel grid. Each loader is a tiny
-          64-pixel canvas animated entirely with CSS — no canvas, no SVG, no heavy runtime.
+          ships 68 loading animations, all built on a 5×5 pixel grid. Each loader is a tiny
+          25-pixel canvas animated entirely with CSS — no canvas, no SVG, no heavy runtime.
         </p>
         <p className="mb-8" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
           Drop a single <code style={{ color: "#d8d8d8", fontFamily: "monospace" }}>&lt;Loader&gt;</code> component
@@ -48,10 +48,10 @@ export default function IntroductionPage() {
         </h2>
         <div className="grid sm:grid-cols-2 gap-3 mb-8">
           {[
-            { icon: "⬡", title: "100 unique loaders",    desc: "Pulse, scale, sprite, mandala, and story animations." },
+            { icon: "⬡", title: "68 unique loaders",     desc: "Pulse, scale, AI-process, and mandala animations." },
             { icon: "⌘", title: "Zero config",           desc: "Styles inject automatically. No CSS import needed." },
             { icon: "◈", title: "Fully customizable",    desc: "Control color, size, gap, and speed via props." },
-            { icon: "◻", title: "TypeScript first",      desc: "All 100 loader names are typed for IDE autocomplete." },
+            { icon: "◻", title: "TypeScript first",      desc: "All 68 loader names are typed for IDE autocomplete." },
             { icon: "◎", title: "Low paint cost",         desc: "Transform and opacity motion without animated glow." },
             { icon: "◉", title: "Next.js App Router",    desc: "Works in client components out of the box." },
           ].map((f) => (
@@ -75,11 +75,10 @@ export default function IntroductionPage() {
         </h2>
         <div className="space-y-3 mb-8">
           {[
-            { name: "Pulse Wave",  count: 38, desc: "Brightness-pulse animations — sweep, ripple, spiral, scanner, rain, and more." },
+            { name: "Pulse Wave",  count: 27, desc: "Brightness-pulse animations — sweep, ripple, spiral, scanner, rain, and more." },
+            { name: "AI / Process", count: 10, desc: "Named for agent states — thinking, searching, streaming, reasoning." },
             { name: "Scale",       count: 16, desc: "Pixels scale in and out with twist, jelly, bounce, pop-rotate, and zigzag effects." },
-            { name: "Sprites",     count: 20, desc: "Fixed color pixel maps — emoji and icons like smiley, heart, rocket, and robot." },
             { name: "Mandalas",    count: 15, desc: "Symmetric patterns — round, snowflake, gear, octagon, lotus, and more." },
-            { name: "Stories",     count: 11, desc: "Multi-frame mini-narratives and communication icons that play like pixel films." },
           ].map((t) => (
             <div
               key={t.name}
@@ -101,7 +100,7 @@ export default function IntroductionPage() {
         </div>
 
         <Callout type="tip">
-          All 100 loaders are previewed live in the{" "}
+          All 68 loaders are previewed live in the{" "}
           <Link href="/" style={{ color: "#d8d8d8", textDecoration: "underline" }}>showcase →</Link>
         </Callout>
 

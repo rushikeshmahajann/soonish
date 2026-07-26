@@ -1,8 +1,15 @@
 {
   "name": "1hundo-loaders",
   "version": "0.1.0",
-  "description": "100 animated 8×8 pixel grid loaders for React — customizable color, size, speed",
-  "keywords": ["react", "loader", "spinner", "animation", "pixel", "loading"],
+  "description": "68 animated 5×5 pixel grid loaders for React — customizable color, size, speed",
+  "keywords": [
+    "react",
+    "loader",
+    "spinner",
+    "animation",
+    "pixel",
+    "loading"
+  ],
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,7 +21,9 @@
       "require": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",

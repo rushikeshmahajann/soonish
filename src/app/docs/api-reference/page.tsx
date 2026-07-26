@@ -41,7 +41,7 @@ export default function ApiReferencePage() {
         </div>
 
         <p className="mb-4 text-sm" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          The primary export. Renders a single 8×8 pixel loader by name. Accepts props
+          The primary export. Renders a single 5×5 pixel loader by name. Accepts props
           for color, size, gap, and speed customization.
         </p>
 
@@ -53,8 +53,8 @@ export default function ApiReferencePage() {
 <Loader
   name="ripple"
   color="#c9d0f4"
-  size={7}
-  gap={1}
+  size={24}
+  dotSize={3}
   speed={0.8}
   className="my-loader"
   style={{ opacity: 0.9 }}
@@ -72,33 +72,40 @@ export default function ApiReferencePage() {
               name: "name",
               type: "LoaderName",
               required: true,
-              description: "The loader to display. See LoaderName for all 100 valid values.",
+              description: "The loader to display. See LoaderName for all 68 valid values.",
             },
             {
               name: "color",
               type: "string",
               default: "loader's pastel",
               description:
-                "Override the animation color. Accepts any CSS color value (hex, rgb, hsl). Has no effect on sprite or story loaders.",
+                "Override the animation color. Accepts any CSS color value (hex, rgb, hsl).",
             },
             {
               name: "size",
               type: "number",
-              default: "7",
-              description: "Width and height of each pixel in the 8×8 grid, in pixels.",
+              default: "24",
+              description:
+                "Total width and height of the whole matrix, in pixels — not the dot. The gap between dots is derived from this so the footprint stays fixed as dotSize changes.",
             },
             {
-              name: "gap",
+              name: "dotSize",
               type: "number",
-              default: "1",
-              description: "Spacing between pixels in the grid, in pixels. Set to 0 for a solid block.",
+              default: "3",
+              description: "Width and height of a single dot, in pixels.",
+            },
+            {
+              name: "cellPadding",
+              type: "number",
+              description:
+                "Fix the gap between dots explicitly, in pixels. When set, size is ignored and the matrix grows to fit. Leave unset to let the gap be derived from size.",
             },
             {
               name: "speed",
               type: "number",
               default: "1",
               description:
-                "Animation speed multiplier. 1 = normal speed. 2 = twice as fast. 0.5 = half speed. Also affects frame rate of story loaders.",
+                "Animation speed multiplier. 1 = normal speed. 2 = twice as fast. 0.5 = half speed.",
             },
             {
               name: "className",
@@ -128,7 +135,7 @@ export default function ApiReferencePage() {
   // Pulse wave loaders
   | 'sweep' | 'diagonal' | 'ripple' | 'rain' | 'spiral' | 'snake'
   | 'sparkle' | 'heartbeat' | 'scanner' | 'orbit' | 'breathe' | 'checker'
-  | 'stripes' | 'falling' | 'plasma' | 'loadbar' | 'knight-tour' | 'hilbert'
+  | 'stripes' | 'falling' | 'plasma' | 'loadbar' | 'knight-tour'
   | 'vortex' | 'sine-wave' | 'life' | 'quadrants' | 'crossfade' | 'glider'
   | 'matrix' | 'pong' | 'concentric' | 'twin-spirals'
   // AI / process loaders
@@ -140,18 +147,10 @@ export default function ApiReferencePage() {
   // Funky scale
   | 'twist' | 'squash' | 'jelly' | 'pop-rotate' | 'skew'
   | 'heartbeat-scale' | 'drop' | 'burst' | 'spiral-scale' | 'zigzag'
-  // Emoji sprites
-  | 'smiley' | 'heart' | 'star' | 'fire' | 'robot' | 'ghost'
-  | 'lightning' | 'diamond' | 'skull' | 'pacman' | 'mushroom' | 'crown'
-  | 'rocket' | 'coin' | 'bomb' | 'wave' | 'cat' | 'bug' | 'battery' | 'bell'
   // Mandalas
   | 'round' | 'square-mandala' | 'diamond-mandala' | 'cross' | 'x-diagonal'
   | 'star-burst' | 'petal' | 'snowflake' | 'gear' | 'kaleido'
-  | 'spiral-mandala' | 'pulse-square' | 'check-mandala' | 'octagon' | 'lotus'
-  // Story loaders
-  | 'mountain' | 'fishing' | 'treadmill' | 'chef' | 'plant' | 'astronaut'
-  // Communication
-  | 'envelope' | 'bubble' | 'phone' | 'bell-swing' | 'at';`}
+  | 'spiral-mandala' | 'pulse-square' | 'check-mandala' | 'octagon' | 'lotus';`}
         />
 
         {/* TypeScript */}
@@ -179,7 +178,7 @@ interface ButtonProps {
 function Button({ loaderName = 'sweep', isLoading }: ButtonProps) {
   return (
     <button>
-      {isLoading ? <Loader name={loaderName} size={10} /> : 'Submit'}
+      {isLoading ? <Loader name={loaderName} size={20} /> : 'Submit'}
     </button>
   );
 }
