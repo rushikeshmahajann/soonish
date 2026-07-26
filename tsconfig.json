@@ -19,16 +19,18 @@
       }
     ],
     "paths": {
+      "1hundo-loaders": ["./packages/1hundo-loaders/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "*.ts",
+    "*.mts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "packages/*/dist", "packages/*/node_modules"]
 }

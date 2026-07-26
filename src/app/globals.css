@@ -1,26 +1,1136 @@
 @import "tailwindcss";
 
+/* Register the next/font families in Tailwind's theme so they emit utilities.
+   Always go through the next/font CSS variables rather than naming the family
+   directly: the variable pairs the font with its metric-matched fallback
+   (e.g. "Pixelify Sans","Pixelify Sans Fallback"), which is what prevents
+   layout shift while the font loads. */
+@theme {
+  --font-pixel: var(--font-pixelify-sans), ui-monospace, monospace;
+  --font-mori: var(--font-pp-mori), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* === 8x8 Pixel Grid Loaders === */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #050505;
+  --card: #0b0b0b;
+  --card-2: #101010;
+  --border: rgba(255, 255, 255, 0.07);
+  --text: #f1f1f1;
+  --text-dim: #9a9a9a;
+  --text-faint: #555555;
+
+  --neon-cyan: #bfe7df;
+  --neon-magenta: #e7c6df;
+  --neon-violet: #c9d0f4;
+  --neon-lime: #d7e9bd;
+  --neon-pink: #edc8cf;
+  --neon-amber: #edcfaa;
+  --neon-mint: #bee8dc;
+  --neon-yellow: #eee5b7;
+
+  --pixel: 7px;
+  --gap: 1px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+  min-height: 100vh;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.header {
+  padding: 64px 40px 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+.brand-mark {
+  display: grid;
+  grid-template-columns: repeat(3, 6px);
+  grid-template-rows: repeat(3, 6px);
+  gap: 1px;
+}
+.brand-mark i {
+  background: var(--text-dim);
+  animation: brand-pulse 1.6s ease-in-out infinite;
+}
+.brand-mark i:nth-child(1) { animation-delay: 0s; }
+.brand-mark i:nth-child(2) { animation-delay: 0.1s; }
+.brand-mark i:nth-child(3) { animation-delay: 0.2s; }
+.brand-mark i:nth-child(4) { animation-delay: 0.1s; }
+.brand-mark i:nth-child(5) { animation-delay: 0.2s; background: var(--text); }
+.brand-mark i:nth-child(6) { animation-delay: 0.3s; }
+.brand-mark i:nth-child(7) { animation-delay: 0.2s; }
+.brand-mark i:nth-child(8) { animation-delay: 0.3s; }
+.brand-mark i:nth-child(9) { animation-delay: 0.4s; }
+@keyframes brand-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.title-block h1 {
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  margin: 28px 0 0;
+  line-height: 1;
+}
+.title-block h1 em {
+  font-style: normal;
+  color: var(--text);
+}
+.title-block p {
+  margin: 14px 0 0;
+  color: var(--text-dim);
+  font-size: 15px;
+  max-width: 540px;
+  line-height: 1.5;
+}
+.meta {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.dot-live {
+  width: 6px; height: 6px;
+  background: var(--text-dim);
+  display: inline-block;
+  margin-right: 8px;
+  animation: brand-pulse 1.4s ease-in-out infinite;
+}
+
+/* Grid of loaders */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  padding: 1px;
+  border-bottom: 1px solid var(--border);
+}
+.tile {
+  background: var(--card);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.3s ease;
+  overflow: hidden;
+}
+.tile:hover { background: var(--card-2); }
+
+.matrix {
+  display: grid;
+  grid-template-columns: repeat(8, var(--pixel));
+  grid-template-rows: repeat(8, var(--pixel));
+  gap: var(--gap);
+}
+.matrix .px {
+  width: var(--pixel);
+  height: var(--pixel);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  will-change: transform, opacity;
+}
+
+.label {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+  pointer-events: none;
+}
+.label .name { color: var(--text-dim); }
+.tile:hover .label .name { color: var(--text); }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 40px;
+  border-bottom: 1px solid var(--border);
+}
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e8e8f0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.page-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text);
+}
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.page-status {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #6b6b7a;
+  letter-spacing: 0.06em;
+}
+.page-range { color: #e8e8f0; }
+.page-dots { display: flex; gap: 6px; }
+.page-dot {
+  width: 24px; height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.page-dot.active {
+  background: var(--text);
+  width: 36px;
+}
+.page-dot:hover:not(.active) { background: rgba(255, 255, 255, 0.25); }
+
+.footer {
+  padding: 28px 40px 48px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-faint);
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+/* === 8x8 Pixel Grid Loader Animations ===
+   Strategy: every pixel is always slightly visible (faint background),
+   the animation pulses brightness + glow. Per-pixel delays from JS
+   create the pattern. Long "on" windows so motion reads clearly. */
+
+.matrix .px {
+  background: rgba(255, 255, 255, 0.04);
+  transition: none;
+}
+
+/* ========== 01. Sweep Wave (column delay) ========== */
+.pg-01 .px { animation: pg-pulse-cyan 1.6s linear infinite; }
+
+/* ========== 02. Diagonal Wave ========== */
+.pg-02 .px { animation: pg-pulse-magenta 1.8s linear infinite; }
+
+/* ========== 03. Ripple from Center ========== */
+.pg-03 .px { animation: pg-pulse-violet 1.6s ease-out infinite; }
+
+/* ========== 04. Rain ========== */
+.pg-04 .px { animation: pg-pulse-mint 1.8s linear infinite; }
+
+/* ========== 05. Spiral ========== */
+.pg-05 .px { animation: pg-pulse-pink 2.4s linear infinite; }
+
+/* ========== 06. Snake ========== */
+.pg-06 .px { animation: pg-pulse-lime 2.4s linear infinite; }
+
+/* ========== 07. Sparkle ========== */
+.pg-07 .px { animation: pg-pulse-amber 1.8s ease-in-out infinite; }
+
+/* ========== 08. Heartbeat — whole grid lit + pulses ========== */
+.pg-08 .px {
+  background: var(--neon-magenta);
+  box-shadow: 0 0 4px var(--neon-magenta);
+  animation: pg-heartbeat 1.2s ease-in-out infinite;
+}
+
+/* ========== 09. Scanner (row delay) ========== */
+.pg-09 .px { animation: pg-pulse-cyan 1.4s linear infinite; }
+
+/* ========== 10. Orbit (border path) ========== */
+.pg-10 .px { animation: pg-pulse-yellow 3.2s linear infinite; }
+
+/* ========== 11. Breathe (concentric rings) ========== */
+.pg-11 .px { animation: pg-pulse-violet 2.4s ease-in-out infinite; }
+
+/* ========== 12. Checker ========== */
+.pg-12 .px { animation: pg-pulse-mint 1.4s ease-in-out infinite; }
+
+/* ========== 13. Stripes ========== */
+.pg-13 .px { animation: pg-pulse-pink 1.6s linear infinite; }
+
+/* ========== 14. Falling ========== */
+.pg-14 .px { animation: pg-pulse-cyan 1.6s linear infinite; }
+
+/* ========== 15. Plasma — full grid color cycles together ========== */
+.pg-15 .px {
+  animation: pg-plasma 3s ease-in-out infinite;
+}
+
+/* ========== 16. LoadBar ========== */
+.pg-16 .px { animation: pg-pulse-lime 2.8s linear infinite; }
+
+/* ========== 17. Knight's Tour ========== */
+.pg-17 .px { animation: pg-pulse-cyan 4s linear infinite; }
+
+/* ========== 18. Hilbert Curve ========== */
+.pg-18 .px { animation: pg-pulse-violet 3.6s linear infinite; }
+
+/* ========== 19. Vortex (rotating spiral) ========== */
+.pg-19 .px { animation: pg-pulse-magenta 2.4s linear infinite; }
+
+/* ========== 20. Sine Wave ========== */
+.pg-20 .px { animation: pg-pulse-mint 2s linear infinite; }
+
+/* ========== 21. Game of Life (preset) ========== */
+.pg-21 .px { animation: pg-pulse-amber 2s ease-in-out infinite; }
+
+/* ========== 22. Cross-fade quadrants ========== */
+.pg-22 .px { animation: pg-pulse-pink 1.6s ease-in-out infinite; }
+
+/* ========== 23. Dual Sweep (X-pattern) ========== */
+.pg-23 .px { animation: pg-pulse-cyan 1.8s linear infinite; }
+
+/* ========== 24. Conway Glider ========== */
+.pg-24 .px { animation: pg-pulse-lime 1.8s steps(4, end) infinite; }
+
+/* ========== 25. Matrix Rain (digital cascade) ========== */
+.pg-25 .px { animation: pg-rain-fade 2s linear infinite; }
+@keyframes pg-rain-fade {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  20% { background: var(--neon-mint); box-shadow: 0 0 10px var(--neon-mint); }
+  60% { background: rgba(190, 232, 220, 0.2); box-shadow: 0 0 2px var(--neon-mint); }
+}
+
+/* ========== 26. Pong (ball bounce) ========== */
+.pg-26 .px { animation: pg-pulse-yellow 2.6s linear infinite; }
+
+/* ========== 27. Concentric Squares ========== */
+.pg-27 .px { animation: pg-pulse-violet 2s ease-in-out infinite; }
+
+/* ========== 28. Twin Spirals (counter-rotating) ========== */
+.pg-28 .px { animation: pg-pulse-magenta 3s linear infinite; }
+
+/* ========== 29. Thinking ========== */
+.pg-29 .px { animation: pg-think 2s ease-in-out infinite; }
+@keyframes pg-think {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  30%, 50% { background: var(--neon-violet); box-shadow: 0 0 8px var(--neon-violet); }
+}
+
+/* ========== 30. Searching ========== */
+.pg-30 .px { animation: pg-search 1.6s ease-in-out infinite; }
+@keyframes pg-search {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  20%, 30% { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+}
+
+/* ========== 31. Finding ========== */
+.pg-31 .px { animation: pg-find 1.8s ease-in-out infinite; }
+@keyframes pg-find {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  60%, 80% { background: var(--neon-lime); box-shadow: 0 0 10px var(--neon-lime); }
+}
+
+/* ========== 32. Consolidating ========== */
+.pg-32 .px { animation: pg-consolidate 2.2s ease-in-out infinite; }
+@keyframes pg-consolidate {
+  0% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  40%, 60% { background: var(--neon-amber); box-shadow: 0 0 10px var(--neon-amber); }
+  100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+}
+
+/* ========== 33. Streaming ========== */
+.pg-33 .px { animation: pg-stream 1.4s linear infinite; }
+@keyframes pg-stream {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  20% { background: var(--neon-mint); box-shadow: 0 0 10px var(--neon-mint); }
+  40% { background: rgba(190, 232, 220, 0.3); box-shadow: 0 0 4px var(--neon-mint); }
+}
+
+/* ========== 34. Reasoning ========== */
+.pg-34 .px { animation: pg-reason 2s ease-in-out infinite; }
+@keyframes pg-reason {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  40%, 60% { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+}
+
+/* ========== 35. Indexing ========== */
+.pg-35 .px { animation: pg-index 1.6s linear infinite; }
+@keyframes pg-index {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  10%, 25% { background: var(--neon-yellow); box-shadow: 0 0 10px var(--neon-yellow); }
+}
+
+/* ========== 36. Connecting ========== */
+.pg-36 .px { animation: pg-connect 2s ease-in-out infinite; }
+@keyframes pg-connect {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  40%, 60% { background: var(--neon-cyan); box-shadow: 0 0 12px var(--neon-cyan); }
+}
+
+/* ========== 37. Generating ========== */
+.pg-37 .px { animation: pg-generate 2.4s ease-out infinite; }
+@keyframes pg-generate {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  40%, 70% { background: var(--neon-magenta); box-shadow: 0 0 8px var(--neon-magenta); }
+}
+
+/* ========== 38. Reflecting ========== */
+.pg-38 .px { animation: pg-reflect 2s ease-in-out infinite; }
+@keyframes pg-reflect {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  40%, 60% { background: var(--neon-violet); box-shadow: 0 0 10px var(--neon-violet); }
+}
+
+/* ===== EMOJI SPRITES =====
+   Sprites use a different approach: each pixel has a fixed color (or off).
+   Animation pulses the whole sprite together. The .on class on individual
+   pixels (set via JS based on the sprite map) lights them up.
+   Some emojis have multi-color regions (eyes, mouth) handled by .c1/.c2 etc. */
+
+.matrix.sprite .px {
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: none;
+  transition: none;
+}
+.matrix.sprite .px.on {
+  background: var(--c, var(--neon-yellow));
+  box-shadow: 0 0 4px var(--c, var(--neon-yellow));
+}
+
+/* Detail pixels — fade in/out independently (eyes blinking, mouth, accents) */
+.matrix.sprite .px.detail {
+  animation: sprite-detail-fade 1.6s ease-in-out infinite;
+}
+@keyframes sprite-detail-fade {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  45% { opacity: 0.15; transform: scale(0.7); }
+  55% { opacity: 0.15; transform: scale(0.7); }
+}
+
+/* Slow eye-blink variant — long open, quick close */
+.matrix.sprite .px.blink-eye {
+  animation: sprite-eye-blink 3s ease-in-out infinite;
+}
+@keyframes sprite-eye-blink {
+  0%, 92%, 100% { opacity: 1; transform: scaleY(1); }
+  95%, 97% { opacity: 0.2; transform: scaleY(0.2); }
+}
+
+/* Body pixels can have a soft fade-in stagger by index */
+.matrix.sprite .px.on:not(.detail):not(.blink-eye) {
+  animation: sprite-body-glow 2.4s ease-in-out infinite;
+}
+@keyframes sprite-body-glow {
+  0%, 100% {
+    background: var(--c);
+    box-shadow: 0 0 3px var(--c);
+  }
+  50% {
+    background: var(--c);
+    box-shadow: 0 0 8px var(--c), 0 0 14px var(--c);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Story-frame sprites: disable per-pixel animations so frames swap cleanly */
+.matrix.story .px,
+.matrix.story .px.on {
+  animation: none !important;
+  transition: background 0.05s linear, box-shadow 0.05s linear;
+}
+.matrix.story .px.on {
+  background: var(--c);
+  box-shadow: 0 0 4px var(--c);
+}
+
+/* ===== MANDALA LOADERS =====
+   Symmetric patterns — pixels in the same "ring" share an animation delay.
+   Ring index is set as data-ring; CSS pulses by ring with scale + glow. */
+
+/* Round mandala — concentric circles (chebyshev distance) */
+.pg-86 .px { animation: pg-mandala-round 2s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-round {
+  0%, 100% { transform: scale(0.2); opacity: 0; background: rgba(255,255,255,0.04); }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+}
+
+/* Square mandala — square rings via chebyshev */
+.pg-87 .px { animation: pg-mandala-square 2s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-square {
+  0%, 100% { transform: scale(0.2); opacity: 0; background: rgba(255,255,255,0.04); }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-magenta); box-shadow: 0 0 8px var(--neon-magenta); }
+}
+
+/* Diamond mandala — manhattan distance rings */
+.pg-88 .px { animation: pg-mandala-diamond 2s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-diamond {
+  0%, 100% { transform: scale(0.2); opacity: 0; background: rgba(255,255,255,0.04); }
+  50% { transform: scale(1.1); opacity: 1; background: var(--neon-violet); box-shadow: 0 0 8px var(--neon-violet); }
+}
+
+/* Cross mandala — only axes light up */
+.pg-89 .px { animation: pg-mandala-cross 1.8s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-cross {
+  0%, 100% { transform: scale(0.1); opacity: 0; background: rgba(255,255,255,0.04); }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-yellow); box-shadow: 0 0 8px var(--neon-yellow); }
+}
+
+/* X mandala — only diagonals light up */
+.pg-90 .px { animation: pg-mandala-x 1.8s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-x {
+  0%, 100% { transform: scale(0.1); opacity: 0; background: rgba(255,255,255,0.04); }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); }
+}
+
+/* Star mandala — both cross + diagonals */
+.pg-91 .px { animation: pg-mandala-star 2s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-star {
+  0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1) rotate(45deg); opacity: 1; background: var(--neon-amber); box-shadow: 0 0 8px var(--neon-amber); }
+}
+
+/* Petal mandala — flower-like pattern */
+.pg-92 .px { animation: pg-mandala-petal 2.4s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-petal {
+  0%, 100% { transform: scale(0.1); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); }
+}
+
+/* Snowflake — 4-fold symmetric branches */
+.pg-93 .px { animation: pg-mandala-snow 2.4s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-snow {
+  0%, 100% { transform: scale(0.1) rotate(-90deg); opacity: 0; }
+  50% { transform: scale(1) rotate(0deg); opacity: 1; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+}
+
+/* Gear — rotating teeth */
+.pg-94 .px { animation: pg-mandala-gear 2s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-gear {
+  0% { transform: scale(0.3) rotate(0deg); opacity: 0.3; }
+  50% { transform: scale(1) rotate(45deg); opacity: 1; background: var(--neon-mint); box-shadow: 0 0 8px var(--neon-mint); }
+  100% { transform: scale(0.3) rotate(90deg); opacity: 0.3; }
+}
+
+/* Kaleidoscope — multi-color rings */
+.pg-95 .px { animation: pg-mandala-kaleido 2.4s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-kaleido {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  25% { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-magenta); box-shadow: 0 0 8px var(--neon-magenta); }
+  75% { background: var(--neon-violet); box-shadow: 0 0 8px var(--neon-violet); }
+}
+
+/* Spiral mandala — angular delay creates spiral pulse */
+.pg-96 .px { animation: pg-mandala-spiral 2.4s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-spiral {
+  0%, 100% { transform: scale(0) rotate(0); opacity: 0; }
+  50% { transform: scale(1) rotate(360deg); opacity: 1; background: var(--neon-violet); box-shadow: 0 0 8px var(--neon-violet); }
+}
+
+/* Pulse-out square — full square breathing */
+.pg-97 .px { animation: pg-mandala-pulse 1.8s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-pulse {
+  0%, 100% { transform: scale(0.4); opacity: 0.3; background: var(--neon-amber); box-shadow: none; }
+  50% { transform: scale(1.1); opacity: 1; background: var(--neon-amber); box-shadow: 0 0 10px var(--neon-amber); }
+}
+
+/* Checker mandala — alternating with scale */
+.pg-98 .px { animation: pg-mandala-checker 1.8s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-checker {
+  0%, 100% { transform: scale(0.2); opacity: 0; background: rgba(255,255,255,0.04); }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-mint); box-shadow: 0 0 8px var(--neon-mint); }
+}
+
+/* Octagon — 8-sided ring outline */
+.pg-99 .px { animation: pg-mandala-oct 2s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-oct {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-yellow); box-shadow: 0 0 8px var(--neon-yellow); }
+}
+
+/* Lotus — multi-ring petal mandala with color shift */
+.pg-100 .px { animation: pg-mandala-lotus 3s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-mandala-lotus {
+  0%, 100% { transform: scale(0.1) rotate(-45deg); opacity: 0; }
+  35% { background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); }
+  50% { transform: scale(1.1) rotate(0deg); opacity: 1; background: var(--neon-magenta); box-shadow: 0 0 12px var(--neon-magenta); }
+  65% { background: var(--neon-violet); box-shadow: 0 0 8px var(--neon-violet); }
+}
+
+/* sprite breathing — whole-grid soft pulse */
+@keyframes sprite-breathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+.matrix.sprite-breathe { animation: sprite-breathe 1.6s ease-in-out infinite; }
+
+/* sprite blink — whole sprite fades in/out */
+@keyframes sprite-blink {
+  0%, 90%, 100% { opacity: 1; }
+  93%, 97% { opacity: 0.2; }
+}
+.matrix.sprite-blink { animation: sprite-blink 2.4s ease-in-out infinite; }
+
+/* sprite spin — rotate */
+@keyframes sprite-spin { to { transform: rotate(360deg); } }
+.matrix.sprite-spin { animation: sprite-spin 3s linear infinite; }
+
+/* sprite bounce */
+@keyframes sprite-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.matrix.sprite-bounce { animation: sprite-bounce 1.2s ease-in-out infinite; }
+
+/* sprite flash — color-shift glow */
+@keyframes sprite-flash {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  50% { filter: brightness(1.4) saturate(1.4); }
+}
+.matrix.sprite-flash { animation: sprite-flash 1s ease-in-out infinite; }
+
+/* ===== SCALE-BASED PROCEDURAL LOADERS =====
+   Pixels scale from 0 → 1 → 0 with per-pixel delays creating the pattern. */
+
+/* Scale ripple from center */
+.pg-59 .px { animation: pg-scale-cyan 1.8s ease-in-out infinite; }
+/* Scale wave column-by-column */
+.pg-60 .px { animation: pg-scale-magenta 1.6s ease-in-out infinite; }
+/* Scale grow-shrink diagonal */
+.pg-61 .px { animation: pg-scale-violet 2s ease-in-out infinite; }
+/* Scale random pop */
+.pg-62 .px { animation: pg-scale-amber 1.6s ease-in-out infinite; }
+/* Scale ring expand */
+.pg-63 .px { animation: pg-scale-mint 2s ease-in-out infinite; }
+/* Scale chess board */
+.pg-64 .px { animation: pg-scale-pink 1.4s ease-in-out infinite; }
+
+@keyframes pg-scale-cyan {
+  0%, 100% { transform: scale(0.2); opacity: 0.3; background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+}
+@keyframes pg-scale-magenta {
+  0%, 100% { transform: scale(0.2); opacity: 0.3; background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-magenta); box-shadow: 0 0 10px var(--neon-magenta); }
+}
+@keyframes pg-scale-violet {
+  0%, 100% { transform: scale(0.2); opacity: 0.3; background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { transform: scale(1.15); opacity: 1; background: var(--neon-violet); box-shadow: 0 0 10px var(--neon-violet); }
+}
+@keyframes pg-scale-amber {
+  0%, 100% { transform: scale(0.1); opacity: 0; background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { transform: scale(1.2); opacity: 1; background: var(--neon-amber); box-shadow: 0 0 12px var(--neon-amber); }
+}
+@keyframes pg-scale-mint {
+  0%, 100% { transform: scale(0.3); opacity: 0.4; background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-mint); box-shadow: 0 0 10px var(--neon-mint); }
+}
+@keyframes pg-scale-pink {
+  0%, 100% { transform: scale(0.1); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+}
+
+/* ===== FUNKY SCALE LOADERS ===== */
+
+/* Twist — scale + rotate together */
+.pg-65 .px { animation: pg-twist 2s ease-in-out infinite; transform-origin: center; }
+@keyframes pg-twist {
+  0%, 100% { transform: scale(0.2) rotate(0deg); background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { transform: scale(1) rotate(180deg); background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); border-radius: 0; }
+}
+
+/* Bounce — squash & stretch */
+.pg-66 .px { animation: pg-squash 1.4s ease-in-out infinite; }
+@keyframes pg-squash {
+  0%, 100% { transform: scaleY(0.2) scaleX(1.4); background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { transform: scaleY(1.4) scaleX(0.7); background: var(--neon-magenta); box-shadow: 0 0 10px var(--neon-magenta); }
+}
+
+/* Jelly — anisotropic stretch oscillation */
+.pg-67 .px { animation: pg-jelly 1.6s ease-in-out infinite; }
+@keyframes pg-jelly {
+  0%, 100% { transform: scale(1, 1); background: var(--neon-violet); box-shadow: 0 0 6px var(--neon-violet); }
+  25% { transform: scale(1.4, 0.6); }
+  50% { transform: scale(0.6, 1.4); background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+  75% { transform: scale(1.2, 0.8); }
+}
+
+/* Pop-rotate — pop into existence with full rotation */
+.pg-68 .px { animation: pg-pop-rotate 2.4s cubic-bezier(.5,1.6,.4,1) infinite; }
+@keyframes pg-pop-rotate {
+  0%, 100% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  30%, 70% { transform: scale(1.1) rotate(0deg); opacity: 1; background: var(--neon-amber); box-shadow: 0 0 10px var(--neon-amber); }
+}
+
+/* Skew sweep — pixels shear sideways while scaling */
+.pg-69 .px { animation: pg-skew 1.8s ease-in-out infinite; }
+@keyframes pg-skew {
+  0%, 100% { transform: skewX(-30deg) scale(0.4); background: rgba(255,255,255,0.04); }
+  50% { transform: skewX(30deg) scale(1); background: var(--neon-mint); box-shadow: 0 0 10px var(--neon-mint); }
+}
+
+/* Heartbeat — double-pulse scale */
+.pg-70 .px { animation: pg-heartbeat 1.4s ease-in-out infinite; }
+@keyframes pg-heartbeat {
+  0%, 100% { transform: scale(0.4); background: rgba(237, 200, 207, 0.2); box-shadow: none; }
+  20% { transform: scale(1.1); background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink); }
+  40% { transform: scale(0.7); }
+  60% { transform: scale(1.1); background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink); }
+  80% { transform: scale(0.5); }
+}
+
+/* Drop — pixels fall in from above + bounce */
+.pg-71 .px { animation: pg-drop 1.6s cubic-bezier(.5,0,.5,1.6) infinite; }
+@keyframes pg-drop {
+  0%, 100% { transform: translateY(-20px) scale(0); opacity: 0; }
+  40%, 60% { transform: translateY(0) scale(1); opacity: 1; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+}
+
+/* Burst — flicker out / flicker in */
+.pg-72 .px { animation: pg-burst 1.2s steps(8, end) infinite; }
+@keyframes pg-burst {
+  0% { transform: scale(0); }
+  20% { transform: scale(1.4); background: var(--neon-yellow); box-shadow: 0 0 14px var(--neon-yellow); }
+  40% { transform: scale(0.6); background: var(--neon-amber); }
+  60% { transform: scale(1); background: var(--neon-magenta); box-shadow: 0 0 10px var(--neon-magenta); }
+  80% { transform: scale(0.3); }
+  100% { transform: scale(0); }
+}
+
+/* Spiral — pop + drift outward */
+.pg-73 .px { animation: pg-spiral 2.4s ease-in-out infinite; }
+@keyframes pg-spiral {
+  0%, 100% { transform: scale(0) rotate(0); opacity: 0; }
+  50% { transform: scale(1) rotate(360deg); opacity: 1; background: var(--neon-violet); box-shadow: 0 0 10px var(--neon-violet); border-radius: 50%; }
+}
+
+/* Zigzag — staggered scale + tilt */
+.pg-74 .px { animation: pg-zigzag 1.6s ease-in-out infinite; }
+@keyframes pg-zigzag {
+  0%, 100% { transform: rotate(-15deg) scale(0.3); background: rgba(255,255,255,0.04); }
+  50% { transform: rotate(15deg) scale(1); background: var(--neon-magenta); box-shadow: 0 0 10px var(--neon-magenta); }
+}
+
+/* === Shared keyframes (longer on-windows for readability) === */
+@keyframes pg-pulse-cyan {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  35%, 55% { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan), 0 0 1px var(--neon-cyan); }
+}
+@keyframes pg-pulse-magenta {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  35%, 55% { background: var(--neon-magenta); box-shadow: 0 0 8px var(--neon-magenta), 0 0 1px var(--neon-magenta); }
+}
+@keyframes pg-pulse-violet {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  35%, 55% { background: var(--neon-violet); box-shadow: 0 0 8px var(--neon-violet), 0 0 1px var(--neon-violet); }
+}
+@keyframes pg-pulse-mint {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  35%, 55% { background: var(--neon-mint); box-shadow: 0 0 8px var(--neon-mint), 0 0 1px var(--neon-mint); }
+}
+@keyframes pg-pulse-pink {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  35%, 55% { background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink), 0 0 1px var(--neon-pink); }
+}
+@keyframes pg-pulse-lime {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  35%, 55% { background: var(--neon-lime); box-shadow: 0 0 8px var(--neon-lime), 0 0 1px var(--neon-lime); }
+}
+@keyframes pg-pulse-amber {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  50% { background: var(--neon-amber); box-shadow: 0 0 8px var(--neon-amber), 0 0 1px var(--neon-amber); }
+}
+@keyframes pg-pulse-yellow {
+  0%, 100% { background: rgba(255,255,255,0.04); box-shadow: none; }
+  10%, 18% { background: var(--neon-yellow); box-shadow: 0 0 10px var(--neon-yellow), 0 0 2px var(--neon-yellow); }
+}
+@keyframes pg-heartbeat {
+  0%, 100% { opacity: 0.25; transform: scale(0.92); }
+  20% { opacity: 1; transform: scale(1); }
+  40% { opacity: 0.5; transform: scale(0.95); }
+  60% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-plasma {
+  0%, 100% { background: var(--neon-cyan); box-shadow: 0 0 4px var(--neon-cyan); }
+  33% { background: var(--neon-magenta); box-shadow: 0 0 4px var(--neon-magenta); }
+  66% { background: var(--neon-lime); box-shadow: 0 0 4px var(--neon-lime); }
+}
+
+/* Performance pass: keep the 8x8 motion, but avoid repaint-heavy glow animation. */
+.tile {
+  contain: layout paint style;
+  content-visibility: auto;
+  contain-intrinsic-size: 184px;
+  overflow: clip;
+}
+
+.matrix {
+  contain: layout paint style;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.matrix .px {
+  box-shadow: none !important;
+  filter: none !important;
+  will-change: auto;
+  transform-origin: center;
+  backface-visibility: hidden;
+}
+
+.matrix:not(.sprite) .px {
+  background: var(--loader-color, var(--neon-cyan));
+  opacity: 0.16;
+}
+
+.tile.is-paused .matrix,
+.tile.is-paused .px,
+.animations-paused .matrix,
+.animations-paused .px {
+  animation-play-state: paused !important;
+}
+
+.matrix.sprite .px.on,
+.matrix.story .px.on {
+  box-shadow: none;
+}
+
+.pg-01, .pg-09, .pg-14, .pg-17, .pg-23, .pg-30, .pg-36, .pg-59, .pg-65, .pg-71, .pg-86, .pg-93 {
+  --loader-color: var(--neon-cyan);
+}
+
+.pg-02, .pg-19, .pg-28, .pg-37, .pg-60, .pg-66, .pg-74, .pg-87 {
+  --loader-color: var(--neon-magenta);
+}
+
+.pg-03, .pg-11, .pg-18, .pg-27, .pg-29, .pg-38, .pg-61, .pg-67, .pg-73, .pg-88, .pg-96 {
+  --loader-color: var(--neon-violet);
+}
+
+.pg-04, .pg-12, .pg-20, .pg-25, .pg-33, .pg-63, .pg-69, .pg-94, .pg-98 {
+  --loader-color: var(--neon-mint);
+}
+
+.pg-05, .pg-13, .pg-22, .pg-34, .pg-64, .pg-70, .pg-90, .pg-92, .pg-100 {
+  --loader-color: var(--neon-pink);
+}
+
+.pg-06, .pg-16, .pg-24, .pg-31 {
+  --loader-color: var(--neon-lime);
+}
+
+.pg-07, .pg-21, .pg-32, .pg-62, .pg-68, .pg-91, .pg-97 {
+  --loader-color: var(--neon-amber);
+}
+
+.pg-10, .pg-26, .pg-35, .pg-72, .pg-89, .pg-99 {
+  --loader-color: var(--neon-yellow);
+}
+
+.pg-15, .pg-95 {
+  --loader-color: var(--neon-cyan);
+}
+
+.matrix.sprite-flash {
+  animation-name: sprite-flash-fast;
+}
+
+@keyframes sprite-body-glow {
+  0%, 100% { opacity: 0.82; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sprite-flash-fast {
+  0%, 100% { opacity: 0.9; transform: scale(0.99); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+@keyframes pg-pulse-cyan {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  35%, 55% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-pulse-magenta {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  35%, 55% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-pulse-violet {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  35%, 55% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-pulse-mint {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  35%, 55% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-pulse-pink {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  35%, 55% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-pulse-lime {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  35%, 55% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-pulse-amber {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  50% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-pulse-yellow {
+  0%, 100% { opacity: 0.14; transform: scale(0.84); }
+  10%, 18% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-rain-fade {
+  0%, 100% { opacity: 0.16; transform: translateY(-2px); }
+  20% { opacity: 1; transform: translateY(0); }
+  60% { opacity: 0.38; transform: translateY(1px); }
+}
+@keyframes pg-think {
+  0%, 100% { opacity: 0.16; transform: scale(0.9); }
+  30%, 50% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-search {
+  0%, 100% { opacity: 0.16; transform: scaleX(0.82); }
+  20%, 30% { opacity: 1; transform: scaleX(1); }
+}
+@keyframes pg-find {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  60%, 80% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-consolidate {
+  0%, 100% { opacity: 0.16; transform: scale(0.88); }
+  40%, 60% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-stream {
+  0%, 100% { opacity: 0.14; transform: translateX(-2px); }
+  20% { opacity: 1; transform: translateX(0); }
+  40% { opacity: 0.45; transform: translateX(1px); }
+}
+@keyframes pg-reason {
+  0%, 100% { opacity: 0.16; transform: scale(0.9); }
+  40%, 60% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-index {
+  0%, 100% { opacity: 0.16; transform: scaleY(0.75); }
+  10%, 25% { opacity: 1; transform: scaleY(1); }
+}
+@keyframes pg-connect {
+  0%, 100% { opacity: 0.16; transform: scale(0.85); }
+  40%, 60% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-generate {
+  0%, 100% { opacity: 0.16; transform: scale(0.86); }
+  40%, 70% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-reflect {
+  0%, 100% { opacity: 0.16; transform: scale(0.9); }
+  40%, 60% { opacity: 1; transform: scale(1); }
+}
+@keyframes pg-plasma {
+  0%, 100% { opacity: 1; }
+  33% { opacity: 0.72; }
+  66% { opacity: 0.92; }
+}
+
+@keyframes pg-scale-cyan {
+  0%, 100% { transform: scale(0.2); opacity: 0.28; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-scale-magenta {
+  0%, 100% { transform: scale(0.2); opacity: 0.28; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-scale-violet {
+  0%, 100% { transform: scale(0.2); opacity: 0.28; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+@keyframes pg-scale-amber {
+  0%, 100% { transform: scale(0.1); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+@keyframes pg-scale-mint {
+  0%, 100% { transform: scale(0.3); opacity: 0.35; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-scale-pink {
+  0%, 100% { transform: scale(0.1); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pg-twist {
+  0%, 100% { transform: scale(0.2) rotate(0deg); }
+  50% { transform: scale(1) rotate(180deg); border-radius: 0; }
+}
+
+@keyframes pg-squash {
+  0%, 100% { transform: scaleY(0.2) scaleX(1.4); }
+  50% { transform: scaleY(1.4) scaleX(0.7); }
+}
+
+@keyframes pg-jelly {
+  0%, 100% { transform: scale(1, 1); }
+  25% { transform: scale(1.4, 0.6); }
+  50% { transform: scale(0.6, 1.4); }
+  75% { transform: scale(1.2, 0.8); }
+}
+
+@keyframes pg-pop-rotate {
+  0%, 100% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  30%, 70% { transform: scale(1.1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pg-skew {
+  0%, 100% { transform: skewX(-30deg) scale(0.4); }
+  50% { transform: skewX(30deg) scale(1); }
+}
+
+@keyframes pg-drop {
+  0%, 100% { transform: translateY(-20px) scale(0); opacity: 0; }
+  40%, 60% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes pg-burst {
+  0% { transform: scale(0); }
+  20% { transform: scale(1.4); }
+  40% { transform: scale(0.6); }
+  60% { transform: scale(1); }
+  80% { transform: scale(0.3); }
+  100% { transform: scale(0); }
+}
+
+@keyframes pg-spiral {
+  0%, 100% { transform: scale(0) rotate(0); opacity: 0; }
+  50% { transform: scale(1) rotate(360deg); opacity: 1; border-radius: 50%; }
+}
+
+@keyframes pg-zigzag {
+  0%, 100% { transform: rotate(-15deg) scale(0.3); }
+  50% { transform: rotate(15deg) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark i,
+  .dot-live,
+  .matrix,
+  .matrix .px {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .matrix .px {
+    opacity: 0.72;
+  }
+}
+
+@keyframes pg-mandala-round {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-mandala-square {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-mandala-diamond {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+@keyframes pg-mandala-cross {
+  0%, 100% { transform: scale(0.1); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-mandala-x {
+  0%, 100% { transform: scale(0.1); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-mandala-star {
+  0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1) rotate(45deg); opacity: 1; }
+}
+@keyframes pg-mandala-petal {
+  0%, 100% { transform: scale(0.1); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-mandala-snow {
+  0%, 100% { transform: scale(0.1) rotate(-90deg); opacity: 0; }
+  50% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes pg-mandala-gear {
+  0% { transform: scale(0.3) rotate(0deg); opacity: 0.3; }
+  50% { transform: scale(1) rotate(45deg); opacity: 1; }
+  100% { transform: scale(0.3) rotate(90deg); opacity: 0.3; }
+}
+@keyframes pg-mandala-kaleido {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+  75% { opacity: 0.8; }
+}
+@keyframes pg-mandala-spiral {
+  0%, 100% { transform: scale(0) rotate(0); opacity: 0; }
+  50% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+@keyframes pg-mandala-pulse {
+  0%, 100% { transform: scale(0.4); opacity: 0.3; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+@keyframes pg-mandala-checker {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-mandala-oct {
+  0%, 100% { transform: scale(0.2); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes pg-mandala-lotus {
+  0%, 100% { transform: scale(0.1) rotate(-45deg); opacity: 0; }
+  35% { opacity: 0.65; }
+  50% { transform: scale(1.1) rotate(0deg); opacity: 1; }
+  65% { opacity: 0.75; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matrix,
+  .matrix .px,
+  .brand-mark i,
+  .dot-live {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

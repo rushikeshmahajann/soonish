@@ -1,23 +1,34 @@
 {
-  "name": "1hundo-loaders",
+  "name": "1hundo-loaders-site",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.17.0",
+  "engines": {
+    "node": ">=20.9 <25",
+    "pnpm": ">=10 <11"
+  },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
+    "dev:turbopack": "next dev",
     "build": "next build",
+    "build:webpack": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "1hundo-loaders": "file:packages/1hundo-loaders",
     "next": "16.2.4",
+    "postprocessing": "^6.39.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.185.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
