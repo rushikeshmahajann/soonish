@@ -3,20 +3,20 @@ import type { NextConfig } from "next";
 
 const loaderPackageSource = path.join(
   process.cwd(),
-  "packages/1hundo-loaders/src/index.ts",
+  "packages/soonish/src/index.ts",
 );
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["1hundo-loaders"],
+  transpilePackages: ["soonish"],
   turbopack: {
     resolveAlias: {
-      "1hundo-loaders": loaderPackageSource,
+      "soonish": loaderPackageSource,
     },
   },
   webpack(config) {
     config.resolve ??= {};
     config.resolve.alias ??= {};
-    config.resolve.alias["1hundo-loaders"] = loaderPackageSource;
+    config.resolve.alias["soonish"] = loaderPackageSource;
     return config;
   },
 };

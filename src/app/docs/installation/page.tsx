@@ -21,7 +21,7 @@ export default function InstallationPage() {
           Installation
         </h1>
         <p className="text-lg mb-8" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
-          Install <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>1hundo-loaders</code> from the npm registry.
+          Install <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>soonish</code> from the npm registry.
           It takes less than 30 seconds.
         </p>
 
@@ -49,19 +49,19 @@ export default function InstallationPage() {
           Install
         </h2>
         <p className="mb-2 text-sm" style={{ color: "#71717a" }}>npm</p>
-        <CodeBlock lang="bash" code="npm install 1hundo-loaders" />
+        <CodeBlock lang="bash" code="npm install soonish" />
         <p className="mb-2 text-sm" style={{ color: "#71717a" }}>pnpm</p>
-        <CodeBlock lang="bash" code="pnpm add 1hundo-loaders" />
+        <CodeBlock lang="bash" code="pnpm add soonish" />
         <p className="mb-2 text-sm" style={{ color: "#71717a" }}>yarn</p>
-        <CodeBlock lang="bash" code="yarn add 1hundo-loaders" />
+        <CodeBlock lang="bash" code="yarn add soonish" />
         <p className="mb-2 text-sm" style={{ color: "#71717a" }}>bun</p>
-        <CodeBlock lang="bash" code="bun add 1hundo-loaders" />
+        <CodeBlock lang="bash" code="bun add soonish" />
 
         <h2 id="peer-deps" className="text-2xl font-semibold mt-8 mb-3" style={{ letterSpacing: "-0.02em" }}>
           Peer dependencies
         </h2>
         <p className="mb-4 text-sm" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>1hundo-loaders</code> requires{" "}
+          <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>soonish</code> requires{" "}
           <code style={{ fontFamily: "monospace" }}>react</code> and{" "}
           <code style={{ fontFamily: "monospace" }}>react-dom</code> as peer dependencies.
           If your project already uses React you don&apos;t need to install them separately.
@@ -84,7 +84,7 @@ export default function InstallationPage() {
         <CodeBlock
           filename="app/page.tsx"
           lang="tsx"
-          code={`import { Loader } from '1hundo-loaders';
+          code={`import { Loader } from 'soonish';
 
 export default function Page() {
   return <Loader name="sweep" />;

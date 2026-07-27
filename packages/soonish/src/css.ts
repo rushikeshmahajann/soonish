@@ -28,88 +28,100 @@ const BASE_CSS = `
 `;
 
 /**
- * Every animation is expressed purely as opacity + transform, which keeps the
- * whole grid on the compositor. Colour comes from the static `--loader-color`
- * background above, never from the keyframes.
+ * Two families, deliberately.
+ *
+ * The first 21 keyframes animate **opacity only**. A dot is a fixed-size lamp
+ * that varies in brightness — like a real LED matrix. Because the dot never
+ * changes size, the gap between neighbours is constant at every frame. Adding a
+ * `transform: scale()` here would shrink each dot inside its cell, and since
+ * neighbours sit at different `animation-delay` values they would be at
+ * different scales at any instant, making the spacing visibly uneven.
+ *
+ * The rest keep their transforms: for `scale-*`, `twist`, `squash`, `burst` and
+ * the mandalas the geometry change IS the effect, and losing it would leave
+ * loaders that no longer match their own names.
+ *
+ * Either way, colour comes from the static `--loader-color` background above,
+ * never from the keyframes — so everything stays on the compositor.
  */
 const ANIMATION_CSS = `
 @keyframes pg-pulse-cyan {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  35%, 55% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  35%, 55% { opacity: 1; }
 }
 @keyframes pg-pulse-magenta {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  35%, 55% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  35%, 55% { opacity: 1; }
 }
 @keyframes pg-pulse-violet {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  35%, 55% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  35%, 55% { opacity: 1; }
 }
 @keyframes pg-pulse-mint {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  35%, 55% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  35%, 55% { opacity: 1; }
 }
 @keyframes pg-pulse-pink {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  35%, 55% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  35%, 55% { opacity: 1; }
 }
 @keyframes pg-pulse-lime {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  35%, 55% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  35%, 55% { opacity: 1; }
 }
 @keyframes pg-pulse-amber {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  50% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  50% { opacity: 1; }
 }
 @keyframes pg-pulse-yellow {
-  0%, 100% { opacity: 0.14; transform: scale(0.84); }
-  10%, 18% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.14; }
+  10%, 18% { opacity: 1; }
 }
 @keyframes pg-rain-fade {
-  0%, 100% { opacity: 0.16; transform: translateY(-2px); }
-  20% { opacity: 1; transform: translateY(0); }
-  60% { opacity: 0.38; transform: translateY(1px); }
+  0%, 100% { opacity: 0.16; }
+  20% { opacity: 1; }
+  60% { opacity: 0.38; }
 }
 @keyframes pg-think {
-  0%, 100% { opacity: 0.16; transform: scale(0.9); }
-  30%, 50% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  30%, 50% { opacity: 1; }
 }
 @keyframes pg-search {
-  0%, 100% { opacity: 0.16; transform: scaleX(0.82); }
-  20%, 30% { opacity: 1; transform: scaleX(1); }
+  0%, 100% { opacity: 0.16; }
+  20%, 30% { opacity: 1; }
 }
 @keyframes pg-find {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  60%, 80% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  60%, 80% { opacity: 1; }
 }
 @keyframes pg-consolidate {
-  0%, 100% { opacity: 0.16; transform: scale(0.88); }
-  40%, 60% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  40%, 60% { opacity: 1; }
 }
 @keyframes pg-stream {
-  0%, 100% { opacity: 0.14; transform: translateX(-2px); }
-  20% { opacity: 1; transform: translateX(0); }
-  40% { opacity: 0.45; transform: translateX(1px); }
+  0%, 100% { opacity: 0.14; }
+  20% { opacity: 1; }
+  40% { opacity: 0.45; }
 }
 @keyframes pg-reason {
-  0%, 100% { opacity: 0.16; transform: scale(0.9); }
-  40%, 60% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  40%, 60% { opacity: 1; }
 }
 @keyframes pg-index {
-  0%, 100% { opacity: 0.16; transform: scaleY(0.75); }
-  10%, 25% { opacity: 1; transform: scaleY(1); }
+  0%, 100% { opacity: 0.16; }
+  10%, 25% { opacity: 1; }
 }
 @keyframes pg-connect {
-  0%, 100% { opacity: 0.16; transform: scale(0.85); }
-  40%, 60% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  40%, 60% { opacity: 1; }
 }
 @keyframes pg-generate {
-  0%, 100% { opacity: 0.16; transform: scale(0.86); }
-  40%, 70% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  40%, 70% { opacity: 1; }
 }
 @keyframes pg-reflect {
-  0%, 100% { opacity: 0.16; transform: scale(0.9); }
-  40%, 60% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.16; }
+  40%, 60% { opacity: 1; }
 }
 @keyframes pg-plasma {
   0%, 100% { opacity: 1; }
@@ -163,10 +175,10 @@ const ANIMATION_CSS = `
   50% { transform: skewX(30deg) scale(1); opacity: 1; }
 }
 @keyframes pg-heartbeat {
-  0%, 100% { opacity: 0.25; transform: scale(0.92); }
-  20% { opacity: 1; transform: scale(1); }
-  40% { opacity: 0.5; transform: scale(0.95); }
-  60% { opacity: 1; transform: scale(1); }
+  0%, 100% { opacity: 0.25; }
+  20% { opacity: 1; }
+  40% { opacity: 0.5; }
+  60% { opacity: 1; }
 }
 @keyframes pg-drop {
   0%, 100% { transform: translateY(-20px) scale(0); opacity: 0; }
@@ -267,7 +279,7 @@ export function injectCSS(): void {
   if (_injected || typeof document === 'undefined') return;
   _injected = true;
   const style = document.createElement('style');
-  style.setAttribute('data-1hundo-loaders', '');
+  style.setAttribute('data-soonish', '');
   style.textContent = LOADER_CSS;
   document.head.appendChild(style);
 }

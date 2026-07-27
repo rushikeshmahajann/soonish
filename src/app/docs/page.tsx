@@ -3,7 +3,7 @@ import { OnThisPage } from "@/components/docs/OnThisPage";
 import { Callout } from "@/components/docs/Callout";
 
 const TOC = [
-  { id: "what-is", title: "What is 1hundo-loaders?", level: 2 as const },
+  { id: "what-is", title: "What is soonish?", level: 2 as const },
   { id: "features", title: "Features", level: 2 as const },
   { id: "loader-types", title: "Loader Types", level: 2 as const },
   { id: "next-steps", title: "Next Steps", level: 2 as const },
@@ -30,10 +30,10 @@ export default function IntroductionPage() {
 
         {/* What is */}
         <h2 id="what-is" className="text-2xl font-semibold mb-3" style={{ letterSpacing: "-0.02em" }}>
-          What is 1hundo-loaders?
+          What is soonish?
         </h2>
         <p className="mb-4" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          <strong style={{ color: "#fafafa" }}>1hundo-loaders</strong> is a zero-dependency React component library that
+          <strong style={{ color: "#fafafa" }}>soonish</strong> is a zero-dependency React component library that
           ships 68 loading animations, all built on a 5×5 pixel grid. Each loader is a tiny
           25-pixel canvas animated entirely with CSS — no canvas, no SVG, no heavy runtime.
         </p>

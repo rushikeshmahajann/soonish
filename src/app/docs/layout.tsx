@@ -25,7 +25,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             ))}
           </div>
           <span className="text-sm font-semibold tracking-tight" style={{ fontFamily: "monospace", color: "#fafafa" }}>
-            1hundo-loaders
+            soonish
           </span>
         </Link>
 
@@ -45,7 +45,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             Showcase →
           </Link>
           <a
-            href="https://www.npmjs.com/package/1hundo-loaders"
+            href="https://www.npmjs.com/package/soonish"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-md transition-all font-medium"
@@ -55,7 +55,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
               color: "#fafafa",
             }}
           >
-            npm i 1hundo-loaders
+            npm i soonish
           </a>
         </div>
       </header>

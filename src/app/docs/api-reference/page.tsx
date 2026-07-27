@@ -48,7 +48,7 @@ export default function ApiReferencePage() {
         <CodeBlock
           filename="usage.tsx"
           lang="tsx"
-          code={`import { Loader } from '1hundo-loaders';
+          code={`import { Loader } from 'soonish';
 
 <Loader
   name="ripple"
@@ -166,8 +166,8 @@ export default function ApiReferencePage() {
         <CodeBlock
           filename="types-example.tsx"
           lang="tsx"
-          code={`import type { LoaderName, LoaderProps } from '1hundo-loaders';
-import { Loader } from '1hundo-loaders';
+          code={`import type { LoaderName, LoaderProps } from 'soonish';
+import { Loader } from 'soonish';
 
 // Use LoaderName as a prop type in your own components
 interface ButtonProps {

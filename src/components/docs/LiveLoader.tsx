@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader, getMatrix5Layout } from "1hundo-loaders";
-import type { LoaderName } from "1hundo-loaders";
+import { Loader, getMatrix5Layout } from "soonish";
+import type { LoaderName } from "soonish";
 
 interface LiveLoaderProps {
   name: LoaderName;

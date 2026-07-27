@@ -19,7 +19,7 @@
       }
     ],
     "paths": {
-      "1hundo-loaders": ["./packages/1hundo-loaders/src/index.ts"],
+      "soonish": ["./packages/soonish/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },

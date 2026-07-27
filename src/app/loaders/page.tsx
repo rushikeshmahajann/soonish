@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import type { LoaderName } from "1hundo-loaders";
+import type { LoaderName } from "soonish";
 import { LiveLoaderGrid } from "@/components/docs/LiveLoader";
 
 export const metadata: Metadata = {
   title: "Loaders — all 68",
-  description: "Every loader in the 1hundo-loaders package, grouped by category.",
+  description: "Every loader in the soonish package, grouped by category.",
 };
 
 type Group = {
@@ -16,7 +16,7 @@ type Group = {
 };
 
 // Mirrors the category comments on the LoaderName union in
-// packages/1hundo-loaders/src/types.ts. Typed as LoaderName[], so a rename or
+// packages/soonish/src/types.ts. Typed as LoaderName[], so a rename or
 // typo in the package fails `tsc` here rather than rendering nothing.
 const GROUPS: Group[] = [
   {

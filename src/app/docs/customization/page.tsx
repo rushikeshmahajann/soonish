@@ -43,7 +43,7 @@ export default function CustomizationPage() {
         <CodeBlock
           filename="color-example.tsx"
           lang="tsx"
-          code={`import { Loader } from '1hundo-loaders';
+          code={`import { Loader } from 'soonish';
 
 // Default muted pastel
 <Loader name="sweep" />
@@ -159,7 +159,7 @@ export default function CustomizationPage() {
         <CodeBlock
           filename="combined.tsx"
           lang="tsx"
-          code={`import { Loader } from '1hundo-loaders';
+          code={`import { Loader } from 'soonish';
 
 // Subtle background indicator
 <Loader name="breathe" color="#d8d8d8" size={20} speed={0.6} />

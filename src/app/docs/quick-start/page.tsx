@@ -40,7 +40,7 @@ export default function QuickStartPage() {
         <CodeBlock
           filename="component.tsx"
           lang="tsx"
-          code={`import { Loader } from '1hundo-loaders';
+          code={`import { Loader } from 'soonish';
 
 export function MyComponent() {
   return <Loader name="sweep" />;
@@ -57,7 +57,7 @@ export function MyComponent() {
           Next.js App Router
         </h2>
         <p className="mb-4 text-sm" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          Because <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>1hundo-loaders</code> uses React
+          Because <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>soonish</code> uses React
           hooks internally, it must run in a client component. The package ships with{" "}
           <code style={{ fontFamily: "monospace" }}>&quot;use client&quot;</code> already at the top of its bundle,
           so any component that imports it becomes a client component automatically.
@@ -67,7 +67,7 @@ export function MyComponent() {
           lang="tsx"
           code={`// This is a React Server Component — importing a client-boundary
 // component is fine. Next.js handles the boundary automatically.
-import { Loader } from '1hundo-loaders';
+import { Loader } from 'soonish';
 
 export default function Loading() {
   return (
@@ -92,7 +92,7 @@ export default function Loading() {
         <CodeBlock
           filename="src/App.tsx"
           lang="tsx"
-          code={`import { Loader } from '1hundo-loaders';
+          code={`import { Loader } from 'soonish';
 
 function App() {
   return (
@@ -114,7 +114,7 @@ function App() {
         <CodeBlock
           filename="examples.tsx"
           lang="tsx"
-          code={`import { Loader } from '1hundo-loaders';
+          code={`import { Loader } from 'soonish';
 
 // Pulse waves
 <Loader name="sweep" />

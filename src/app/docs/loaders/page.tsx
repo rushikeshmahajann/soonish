@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LiveLoaderGrid } from "@/components/docs/LiveLoader";
 import { OnThisPage } from "@/components/docs/OnThisPage";
-import type { LoaderName } from "1hundo-loaders";
+import type { LoaderName } from "soonish";
 
 const TOC = [
   { id: "pulse",    title: "Pulse Wave",  level: 2 as const },
