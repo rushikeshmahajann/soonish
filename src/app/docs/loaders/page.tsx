@@ -46,7 +46,7 @@ export default function LoadersPage() {
           All Loaders
         </h1>
         <p className="text-lg mb-4" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
-          68 loaders across 4 categories. All built on the same 25-pixel grid.
+          71 loaders across 4 categories. All built on the same 25-pixel grid.
         </p>
         <p className="text-sm mb-8" style={{ color: "#52525b" }}>
           For the full interactive gallery with pagination,{" "}
@@ -116,7 +116,7 @@ export default function LoadersPage() {
         <Section
           id="mandalas"
           title="Mandalas"
-          count={15}
+          count={18}
           desc="Symmetric patterns where only pixels in a specific geometric path light up. Includes round, snowflake, gear, octagon, lotus, and more."
           loaders={[
             { name: "round",         label: "round" },
@@ -128,6 +128,9 @@ export default function LoadersPage() {
             { name: "x-diagonal",    label: "x-diagonal" },
             { name: "star-burst",    label: "star-burst" },
             { name: "petal",         label: "petal" },
+            { name: "outline",       label: "outline" },
+            { name: "rings",         label: "rings" },
+            { name: "rose",          label: "rose" },
           ]}
         />
       </main>

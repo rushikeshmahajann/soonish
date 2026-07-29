@@ -1,50 +1,63 @@
-let _injected = false;
-
-/**
- * Base grid + pixel styling.
+/*
+ * soonish — base grid + animation keyframes.
  *
- * Pixels fill their grid track rather than reading a `--pixel` variable, so the
- * `size` prop is the single source of truth for cell size.
+ * A real stylesheet, not a JS string: the browser parses it with the CSS engine,
+ * caches it, and applies it before first paint. It used to be injected from a
+ * useEffect, which meant dots rendered unstyled until hydration and forced the
+ * whole component to be a client component.
+ *
+ * Field animations live in fields.generated.css (emitted by scripts/compile-fields.ts).
  */
-const BASE_CSS = `
 .hl-matrix {
+  /* Scopes layout and paint to the grid, so a loader can never invalidate
+     anything outside itself. Cheap and worth keeping. */
   contain: layout paint style;
   isolation: isolate;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  will-change: transform;
+
+  /* Deliberately NOT promoted to its own compositor layer.
+     `transform: translate3d(0,0,0)` + `will-change: transform` used to live here
+     and forced a permanent GPU layer per matrix — 74 of them on /loaders — while
+     the matrix element itself never animates. Only the dots animate, and the
+     browser promotes those on its own for the duration of a running
+     opacity/transform animation. will-change is for anticipating a future
+     animation, not for annotating a perpetual one. */
 }
-.hl-matrix .hl-px {
+/*
+ * Each grid track holds an .hl-cell, which never animates, and an .hl-px inside
+ * it, which does. The split exists because a scaling dot physically disappears
+ * at scale 0 — and a pseudo-element of that dot would scale away with it. Only
+ * an untransformed wrapper can hold a placeholder that survives.
+ */
+.hl-matrix .hl-cell {
+  position: relative;
   width: 100%;
   height: 100%;
+}
+
+/* The placeholder: an always-visible dim lamp. Opt-in via .hl-ph on the matrix,
+   because loaders that animate opacity alone never vanish and would just read
+   brighter at rest if a second layer were stacked under them. */
+.hl-matrix.hl-ph .hl-cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 1px;
+  background: var(--loader-color, #bfe7df);
+  opacity: 0.16;
+}
+
+.hl-matrix .hl-px {
+  position: absolute;
+  inset: 0;
   border-radius: 1px;
   background: var(--loader-color, #bfe7df);
   opacity: 0.16;
   box-shadow: none;
-  will-change: auto;
+  /* transform-origin matters: the scale-based loaders grow from the cell
+     centre, not the top-left. */
   transform-origin: center;
-  backface-visibility: hidden;
 }
-`;
 
-/**
- * Two families, deliberately.
- *
- * The first 21 keyframes animate **opacity only**. A dot is a fixed-size lamp
- * that varies in brightness — like a real LED matrix. Because the dot never
- * changes size, the gap between neighbours is constant at every frame. Adding a
- * `transform: scale()` here would shrink each dot inside its cell, and since
- * neighbours sit at different `animation-delay` values they would be at
- * different scales at any instant, making the spacing visibly uneven.
- *
- * The rest keep their transforms: for `scale-*`, `twist`, `squash`, `burst` and
- * the mandalas the geometry change IS the effect, and losing it would leave
- * loaders that no longer match their own names.
- *
- * Either way, colour comes from the static `--loader-color` background above,
- * never from the keyframes — so everything stays on the compositor.
- */
-const ANIMATION_CSS = `
 @keyframes pg-pulse-cyan {
   0%, 100% { opacity: 0.16; }
   35%, 55% { opacity: 1; }
@@ -264,22 +277,117 @@ const ANIMATION_CSS = `
   50% { transform: scale(1.1) rotate(0deg); opacity: 1; }
   65% { opacity: 0.75; }
 }
+/* ---------------------------------------------------------------------------
+   Ported from the dot-matrix reference (~/Desktop/matrix, loaders/styles.css).
+   Their keyframes express opacity as calc() over --dmx-opacity-base/mid/peak;
+   those resolve to 0.16 / 0.32 / 1 by default, so the arithmetic is done here
+   and the literal result is inlined. base 0.16 matches our own resting opacity.
+   --------------------------------------------------------------------------- */
+
+/* dmx-diagonal-alt-sweep — a hard flash with a fast decay */
+@keyframes dmx-neon-drift {
+  0%, 100% { opacity: 0.08; }
+  14% { opacity: 1; }
+  30% { opacity: 0.12; }
+}
+
+/* dmx-spiral-snake / dmx-diagonal-snake — a ~4-dot tail decaying behind the head */
+@keyframes dmx-snake-trail {
+  0%, 100% { opacity: 0.08; }
+  8% { opacity: 1; }
+  16% { opacity: 0.644; }
+  24% { opacity: 0.442; }
+  32% { opacity: 0.24; }
+  40% { opacity: 0.12; }
+}
+
+/* dmx-ripple-echo — peak, fall, then a secondary swell */
+@keyframes dmx-ripple-echo {
+  0%, 100% { opacity: 0.1; }
+  28% { opacity: 0.98; }
+  56% { opacity: 0.32; }
+  78% { opacity: 0.782; }
+}
+
+/* dmx-center-origin-ripple */
+@keyframes dmx-origin-wave {
+  0%, 100% { opacity: 0.1; }
+  34% { opacity: 1; }
+  60% { opacity: 0.24; }
+}
+
+/* dmx-square6-col-snake — five discrete levels, driven with steps(5, end) */
+@keyframes dmx-flux-columns {
+  0%, 20% { opacity: 0.704; }
+  20%, 40% { opacity: 0.492; }
+  40%, 60% { opacity: 0.256; }
+  60%, 80% { opacity: 0.192; }
+  80%, 100% { opacity: 0.1; }
+}
+
+/* ---- New pattern keyframes ---- */
+
+/* Sonar beam: instant flash, long tail. Combined with an angular delay this
+   reads as a rotating sweep line leaving a decaying wake. */
+@keyframes pg-sonar {
+  0% { opacity: 1; }
+  8% { opacity: 0.72; }
+  22% { opacity: 0.4; }
+  45% { opacity: 0.22; }
+  100% { opacity: 0.16; }
+}
+
+/* Domino topple: compresses, overshoots, settles. */
+@keyframes pg-domino {
+  0%, 100% { opacity: 0.16; transform: scaleY(1); }
+  10% { opacity: 1; transform: scaleY(0.5); }
+  20% { opacity: 0.9; transform: scaleY(1.2); }
+  32% { opacity: 0.45; transform: scaleY(0.95); }
+}
+
+/* Crisp frame: snaps on, holds, drops back with a small dip. */
+@keyframes pg-frame {
+  0%, 100% { opacity: 0.16; transform: scale(0.82); }
+  18%, 34% { opacity: 1; transform: scale(1); }
+  52% { opacity: 0.28; transform: scale(0.9); }
+}
+
+/* ---------------------------------------------------------------------------
+   Multi-channel field support.
+
+   A dot can run several animations at once, each with its own linear() easing,
+   so opacity / glow / scale follow independently shaped curves. All three are
+   compositor properties, so the cost is still zero JS per frame.
+
+   Glow is a pseudo-element whose opacity animates, NOT an animated box-shadow.
+   Animating shadow blur repaints every frame; animating a pre-rendered layer's
+   opacity does not.
+   --------------------------------------------------------------------------- */
+/* .hl-px is already `position: absolute` above, which is itself a containing
+   block for ::after. A second `position` declaration here previously overrode
+   that absolute with relative — and since the absolute rule is what supplies
+   the dot's size via inset:0, every dot collapsed to zero. */
+.hl-matrix .hl-px::after {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--loader-color) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Shared ramps. The linear() easing on each animation reshapes these into the
+   sampled curve, so one keyframe per channel serves every loader. */
+@keyframes hl-field { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hl-field-glow { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hl-field-scale { from { scale: 0; } to { scale: 1; } }
+
 @media (prefers-reduced-motion: reduce) {
   .hl-matrix,
-  .hl-matrix .hl-px {
+  .hl-matrix .hl-px,
+  .hl-matrix .hl-px::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
   }
-}
-`;
-
-export const LOADER_CSS = BASE_CSS + ANIMATION_CSS;
-
-export function injectCSS(): void {
-  if (_injected || typeof document === 'undefined') return;
-  _injected = true;
-  const style = document.createElement('style');
-  style.setAttribute('data-soonish', '');
-  style.textContent = LOADER_CSS;
-  document.head.appendChild(style);
 }

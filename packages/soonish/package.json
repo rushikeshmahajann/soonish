@@ -1,7 +1,7 @@
 {
   "name": "soonish",
   "version": "0.1.0",
-  "description": "68 animated 5×5 pixel grid loaders for React — customizable color, size, speed",
+  "description": "74 animated 5\u00d75 pixel grid loaders for React \u2014 customizable color, size, speed",
   "keywords": [
     "react",
     "loader",
@@ -11,18 +11,17 @@
     "loading"
   ],
   "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     }
   },
   "files": [
-    "dist"
+    "src"
   ],
   "sideEffects": false,
   "scripts": {

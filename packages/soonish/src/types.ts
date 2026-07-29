@@ -18,7 +18,17 @@ export type LoaderName =
   // Mandalas
   | 'round' | 'square-mandala' | 'diamond-mandala' | 'cross' | 'x-diagonal'
   | 'star-burst' | 'petal' | 'snowflake' | 'gear' | 'kaleido' | 'spiral-mandala'
-  | 'pulse-square' | 'check-mandala' | 'octagon' | 'lotus';
+  | 'pulse-square' | 'check-mandala' | 'octagon' | 'lotus'
+  // Geometric masks ported from the dot-matrix pattern set
+  | 'outline' | 'rings' | 'rose'
+  // Compiled brightness fields (engine/) — per-dot curve shapes
+  | 'front-sweep' | 'ripple-echo' | 'pulse-beat' | 'lumen-bloom'
+  | 'raindrop' | 'pendulum' | 'firefly' | 'halo'
+  // New patterns
+  | 'sonar' | 'pinwheel' | 'domino' | 'corners' | 'frame'
+  // Ported from the dot-matrix reference
+  | 'neon-drift' | 'core-spiral' | 'twin-orbit' | 'prism-sweep'
+  | 'flux-columns' | 'echo-ring' | 'origin-wave';
 
 /** Grid is a fixed 5x5 matrix — 25 pixels. */
 export const GRID = 5;
@@ -59,6 +69,24 @@ export interface ProceduralDef {
   duration: number;
   delay: DelayFn;
   skipOnNine?: boolean; // pixels with delay 999 get animation:none
+  /** True when the keyframe scales, so the grid needs a static placeholder behind each dot. */
+  placeholder?: boolean;
 }
 
-export type LoaderDef = ProceduralDef;
+/**
+ * A field compiled ahead of time into per-dot easing curves.
+ *
+ * Unlike ProceduralDef — where every dot shares one keyframe and only the delay
+ * differs — each dot here may reference a differently *shaped* curve, which is
+ * what makes position-dependent brightness expressible.
+ */
+export interface CompiledDef {
+  kind: 'compiled';
+  name: string;
+  slug: string;
+  duration: number;
+  /** d = element-level (opacity+scale) rule index, g = glow rule index or -1. */
+  dots: { d: number; g: number; offset: number }[];
+}
+
+export type LoaderDef = ProceduralDef | CompiledDef;

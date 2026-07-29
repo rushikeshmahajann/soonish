@@ -82,13 +82,15 @@ interface LiveLoaderGridProps {
   dotSize?: number;
   cellPadding?: number;
   speed?: number;
+  /** Applied to every loader in the grid. A per-loader `color` still wins. */
+  color?: string;
 }
 
-export function LiveLoaderGrid({ loaders, size = 24, dotSize = 3, cellPadding, speed = 0.8 }: LiveLoaderGridProps) {
+export function LiveLoaderGrid({ loaders, size = 24, dotSize = 3, cellPadding, speed = 0.8, color: gridColor }: LiveLoaderGridProps) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 gap-3 my-5">
       {loaders.map(({ name, label, color }) => (
-        <LiveLoader key={name} name={name} color={color} size={size} dotSize={dotSize} cellPadding={cellPadding} speed={speed} label={label ?? name} />
+        <LiveLoader key={name} name={name} color={color ?? gridColor} size={size} dotSize={dotSize} cellPadding={cellPadding} speed={speed} label={label ?? name} />
       ))}
     </div>
   );

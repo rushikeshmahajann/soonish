@@ -1,4 +1,5 @@
-import type { LoaderDef, ProceduralDef, DelayFn } from '../types';
+import type { LoaderDef, ProceduralDef, CompiledDef, DelayFn } from '../types';
+import { FIELD_DOTS } from '../engine/generated';
 import { GRID } from '../types';
 
 const N = GRID;                        // 5
@@ -68,9 +69,87 @@ const chebyshev = (x: number, y: number) => Math.max(Math.abs(x-C), Math.abs(y-C
 const manhattan  = (x: number, y: number) => Math.abs(x-C) + Math.abs(y-C);
 const euclidean  = (x: number, y: number) => Math.hypot(x-C, y-C);
 
+// ---- Path orderings ported from the dot-matrix reference (core/grid-paths.ts) ----
+
+/** Spiral inward from the top-left, clockwise. order[cellIndex] = step. */
+const SPIRAL_INWARD_ORDER: number[] = (() => {
+  const o = new Array(TOTAL).fill(0);
+  spiralOrd.forEach((cell, step) => { o[cell] = step; });
+  return o;
+})();
+
+/** Anti-diagonals traversed alternately, so the sweep serpentines. */
+const DIAGONAL_SNAKE_ORDER: number[] = (() => {
+  const o = new Array(TOTAL).fill(0);
+  let t = 0;
+  for (let d = 0; d <= (N - 1) * 2; d++) {
+    const rowStart = Math.max(0, d - (N - 1));
+    const rowEnd = Math.min(N - 1, d);
+    if (d % 2 === 0) {
+      for (let r = rowEnd; r >= rowStart; r--) o[r * N + (d - r)] = t++;
+    } else {
+      for (let r = rowStart; r <= rowEnd; r++) o[r * N + (d - r)] = t++;
+    }
+  }
+  return o;
+})();
+
+/** Perimeter, clockwise from the top-left. -1 for cells off the ring. */
+const OUTER_RING_ORDER: number[] = (() => {
+  const o = new Array(TOTAL).fill(-1);
+  const coords: [number, number][] = [
+    [0,0],[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4],
+    [4,4],[4,3],[4,2],[4,1],[4,0],[3,0],[2,0],[1,0],
+  ];
+  coords.forEach(([r, c], t) => { o[r * N + c] = t; });
+  return o;
+})();
+
+/** The 3x3 ring, anti-clockwise. -1 for cells off the ring. */
+const MIDDLE_RING_ORDER: number[] = (() => {
+  const o = new Array(TOTAL).fill(-1);
+  const coords: [number, number][] = [[1,1],[2,1],[3,1],[3,2],[3,3],[2,3],[1,3],[1,2]];
+  coords.forEach(([r, c], t) => { o[r * N + c] = t; });
+  return o;
+})();
+
+/**
+ * The reference applies a POSITIVE animation-delay, which stalls a dot before it
+ * first animates. A negative delay of -(1 - f) is equivalent for an infinite
+ * loop but starts immediately, so nothing sits dark on mount.
+ */
+const lead = (frac: number, duration: number) => -(1 - (frac % 1)) * duration;
+
+/**
+ * The reference runs every CSS-driven loader on one shared 1500ms cycle
+ * (`--dmx-cycle`), so they read as a single family. Its per-loader cycleMsBase
+ * values (1400-2000ms) belong to the rAF-driven loaders, which we did not port.
+ */
+const DMX = 1.5;
+
 // ---- Builder helpers ----
+
+/**
+ * Keyframes that animate `transform`, so their dots shrink out of existence and
+ * need a placeholder behind them. Derived once here rather than flagged per
+ * loader, so there is a single list to keep in step with the stylesheet.
+ */
+const SCALING_ANIMS = new Set([
+  'pg-scale-cyan', 'pg-scale-magenta', 'pg-scale-violet', 'pg-scale-amber',
+  'pg-scale-mint', 'pg-scale-pink', 'pg-twist', 'pg-squash', 'pg-jelly',
+  'pg-pop-rotate', 'pg-skew', 'pg-drop', 'pg-burst', 'pg-spiral', 'pg-zigzag',
+  'pg-mandala-round', 'pg-mandala-square', 'pg-mandala-diamond', 'pg-mandala-cross',
+  'pg-mandala-x', 'pg-mandala-star', 'pg-mandala-petal', 'pg-mandala-snow',
+  'pg-mandala-gear', 'pg-mandala-kaleido', 'pg-mandala-spiral', 'pg-mandala-pulse',
+  'pg-mandala-checker', 'pg-mandala-oct', 'pg-mandala-lotus',
+  'pg-domino', 'pg-frame',
+]);
+
 function proc(name: string, animName: string, easing: string, duration: number, delay: DelayFn, skipOnNine = false): ProceduralDef {
-  return { kind: 'procedural', name, animName, easing, duration, delay, skipOnNine };
+  return {
+    kind: 'procedural', name, animName, easing, duration, delay, skipOnNine,
+    placeholder: SCALING_ANIMS.has(animName),
+  };
 }
 
 // ---- Registry ----
@@ -155,6 +234,106 @@ const DEFS: LoaderDef[] = [
   proc('Check Mandala',  'pg-mandala-checker', 'ease-in-out', 1.8, (x,y) => { if((x+y)%2!==0) return 999; return -(chebyshev(x,y)/RINGS)*1.8; }, true),
   proc('Octagon',        'pg-mandala-oct',     'ease-in-out', 2.0, (x,y) => { const m=['.OOO.','O...O','O...O','O...O','.OOO.']; if(m[y][x]!=='O') return 999; return -((Math.atan2(y-C,x-C)+Math.PI)/(Math.PI*2))*2; }, true),
   proc('Lotus',          'pg-mandala-lotus',   'ease-in-out', 3.0, (x,y) => { const m=['..L..','.LLL.','LLLLL','.LLL.','..L..']; if(m[y][x]!=='L') return 999; return -(chebyshev(x,y)/RINGS)*3; }, true),
+
+  // Geometric masks ported from the dot-matrix pattern set. Each is expressed as
+  // the original predicate rather than a hand-drawn string, so the shape stays
+  // derived from its maths.
+  //
+  // The full perimeter including corners — unlike Octagon, which cuts them.
+  // Delay keys off euclidean distance, so corners (2.83) lag the edge midpoints
+  // (2.0) and the ring breathes in and out instead of pulsing flat.
+  proc('Outline',        'pg-mandala-oct',     'ease-in-out', 2.0, (x,y) => {
+    if (x !== 0 && x !== N - 1 && y !== 0 && y !== N - 1) return 999;
+    return -(euclidean(x, y) / MAXR) * 2;
+  }, true),
+  // Cells whose radius rounds to 1 or 2 — drops the centre and the four
+  // corners, leaving two concentric bands that pulse outward.
+  proc('Rings',          'pg-mandala-round',   'ease-in-out', 2.2, (x,y) => {
+    const r = Math.round(euclidean(x, y));
+    if (r !== 1 && r !== 2) return 999;
+    return -((r - 1) / 1) * 1.1;
+  }, true),
+  // A three-petal rose curve, |sin(3θ)| thresholded, with the centre excluded.
+  // Delay follows the angle so the petals sweep round.
+  proc('Rose',           'pg-mandala-petal',   'ease-in-out', 2.6, (x,y) => {
+    const dx = x - C, dy = y - C;
+    const radius = Math.hypot(dx, dy);
+    if (Math.abs(Math.sin(3 * Math.atan2(dy, dx))) <= 0.6 || radius < 1) return 999;
+    return -((Math.atan2(dy, dx) + Math.PI) / (Math.PI * 2)) * 2.6;
+  }, true),
+// ---- Ported from the dot-matrix reference (~/Desktop/matrix) ----
+  // Each was a shared @keyframes plus a per-dot animation-delay derived from a
+  // path ordering — i.e. a pure phase shift, which is exactly what proc() is.
+  // Delay formulas are the reference's, converted to lead-in form.
+
+  // dotm-square-1. Anti-diagonal sweep from top-right, alternating parity so
+  // neighbouring diagonals fire half a cycle apart.
+  proc('Neon Drift',   'dmx-neon-drift',   'linear', DMX, (x,y) => {
+    const slice = y + (N - 1 - x);
+    return lead(slice / ((N - 1) * 2) * 0.2 + (slice % 2) * 0.5, DMX);
+  }),
+  // dotm-square-3. A decaying tail chasing the spiral inward.
+  proc('Core Spiral',  'dmx-snake-trail',  'linear', DMX, (x,y) =>
+    lead(SPIRAL_INWARD_ORDER[y * N + x] * 0.04, DMX)),
+  // dotm-square-4. Outer ring clockwise, inner ring anti-clockwise, centre dark.
+  proc('Twin Orbit',   'dmx-snake-trail',  'linear', DMX, (x,y) => {
+    const i = y * N + x;
+    if (x === C && y === C) return 999;
+    const outer = OUTER_RING_ORDER[i];
+    if (outer >= 0) return lead(outer / 16, DMX);
+    return lead(1 - MIDDLE_RING_ORDER[i] / 8, DMX);
+  }, true),
+  // dotm-square-5. Same tail, serpentining across the anti-diagonals.
+  proc('Prism Sweep',  'dmx-snake-trail',  'linear', DMX, (x,y) =>
+    lead(DIAGONAL_SNAKE_ORDER[y * N + x] * 0.04, DMX)),
+  // dotm-square-6. Equaliser columns: each column runs bottom-up or top-down by
+  // parity, stepped so the levels read as discrete bars.
+  proc('Flux Columns', 'dmx-flux-columns', 'steps(5, end)', DMX, (x,y) =>
+    lead(((x % 2 === 0 ? N - 1 - y : y) * 0.2), DMX)),
+  // dotm-square-11. Manhattan rings, with a parity nudge so alternating rings
+  // separate slightly instead of moving as one front.
+  proc('Echo Ring',    'dmx-ripple-echo',  'ease-in-out', DMX, (x,y) => {
+    const ring = Math.min(4, Math.abs(y - C) + Math.abs(x - C));
+    return lead(ring * 0.14 + (ring % 2) * 0.03, DMX);
+  }),
+  // dotm-square-12. Same idea but the origin is off-centre at (1,1), so the wave
+  // is asymmetric across the grid.
+  proc('Origin Wave',  'dmx-origin-wave',  'ease-in-out', DMX, (x,y) => {
+    const ring = Math.min(6, Math.abs(y - 1) + Math.abs(x - 1));
+    return lead(ring * 0.16, DMX);
+  }),
+// ---- New patterns ----
+
+  // A beam sweeping around the centre, leaving a decaying wake. The centre has
+  // no meaningful angle, so it holds steady as the pivot.
+  proc('Sonar',      'pg-sonar',  'linear', 2.4, (x,y) => {
+    if (x === C && y === C) return 0;
+    return -((Math.atan2(y - C, x - C) + Math.PI) / (Math.PI * 2)) * 2.4;
+  }),
+  // Four two-cell arms with 4-fold rotational symmetry, phased by angle so the
+  // whole pinwheel appears to turn.
+  proc('Pinwheel',   'pg-sonar',  'linear', 2.0, (x,y) => {
+    const m = ['.PP..', '....P', 'P.P.P', 'P....', '..PP.'];
+    if (m[y][x] !== 'P') return 999;
+    if (x === C && y === C) return 0;
+    return -((Math.atan2(y - C, x - C) + Math.PI) / (Math.PI * 2)) * 2.0;
+  }, true),
+  // Topples along the serpentine path, each cell tipping into the next.
+  proc('Domino',     'pg-domino', 'ease-in-out', 2.4, (x,y) => {
+    const col = (y % 2 === 0) ? x : (N - 1 - x);
+    return -((y * N + col) / TOTAL) * 2.4;
+  }),
+  // Four runners starting at the corners and converging on the centre.
+  proc('Corners',    'pg-frame',  'ease-in-out', 1.8, (x,y) => {
+    const d = Math.min(
+      Math.hypot(x, y), Math.hypot(N - 1 - x, y),
+      Math.hypot(x, N - 1 - y), Math.hypot(N - 1 - x, N - 1 - y),
+    );
+    return -(d / Math.hypot(C, C)) * 1.8;
+  }),
+  // Nested square frames snapping on from the outside in.
+  proc('Frame',      'pg-frame',  'ease-in-out', 2.0, (x,y) =>
+    -((RINGS - chebyshev(x, y)) / RINGS) * 2.0),
 ];
 
 // ---- Name-to-slug mapping ----
@@ -167,8 +346,15 @@ for (const def of DEFS) {
   LOADER_REGISTRY[toSlug(def.name)] = def;
 }
 
+// Compiled fields. Only the sampled curve data reaches the browser — everything
+// in engine/field.ts and engine/compile.ts runs at build time.
+for (const [slug, f] of Object.entries(FIELD_DOTS)) {
+  const def: CompiledDef = { kind: 'compiled', name: f.name, slug, duration: f.duration, dots: f.dots };
+  LOADER_REGISTRY[slug] = def;
+}
+
 /** Every registered loader slug, in registry order. */
-export const LOADER_NAMES: string[] = DEFS.map(d => toSlug(d.name));
+export const LOADER_NAMES: string[] = [...DEFS.map(d => toSlug(d.name)), ...Object.keys(FIELD_DOTS)];
 
 // Also map some common aliases
 const ALIASES: Record<string, string> = {
