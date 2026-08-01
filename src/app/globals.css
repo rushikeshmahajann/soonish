@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Tailwind v4 CSS-only plugin — it ships @utility/@theme rules, not JS, so it is
+   imported rather than registered with @plugin, and there is no JS import for it
+   anywhere. Must come after "tailwindcss" so its utilities land in the right
+   layer. Provides gradient-border plus the from-/via-/to- colour utilities. */
+@import "gradient-border-plugin";
+
 /* Register the next/font families in Tailwind's theme so they emit utilities.
    Always go through the next/font CSS variables rather than naming the family
    directly: the variable pairs the font with its metric-matched fallback
@@ -76,10 +82,10 @@
      and the sides fall dark. A single top-to-bottom fade reads flat. */
   background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.75) 0%,
+      rgba(255, 255, 255, 0.3) 0%,
       rgba(0, 0, 0, 0.48) 41%,
       rgba(0, 0, 0, 0.26) 75%,
-      rgba(255, 255, 255, 0.25) 100%
+      rgba(255, 255, 255, 0.1) 100%
     )
     border-box;
 
@@ -97,7 +103,15 @@
   mask-composite: exclude;
 }
 
-.custom-button:active {
+/*
+ * Scoped to `button` deliberately.
+ *
+ * The toggle's travelling indicator is a <span class="custom-button">, so it can
+ * NEVER match this selector. That is what structurally prevents the pressed
+ * styling from becoming the indicator's resting appearance — the problem last
+ * time round. Real buttons keep their press.
+ */
+button.custom-button:active {
   translate: 0 1px;
 
   /* Press is ~4x faster than release. Going down should feel instant. */
@@ -118,14 +132,16 @@
 
 @media (prefers-reduced-motion: reduce) {
   .custom-button,
-  .custom-button:active {
+  button.custom-button:active {
     transition-duration: 0.01ms;
   }
 }
 
 /* === 8x8 Pixel Grid Loaders === */
 :root {
-  --bg: #050505;
+  /* Page background for every route. Change it here only — all page-level
+     surfaces reference this token rather than hardcoding a hex. */
+  --bg: #0a0a0a;
   --card: #0b0b0b;
   --card-2: #101010;
   --border: rgba(255, 255, 255, 0.07);

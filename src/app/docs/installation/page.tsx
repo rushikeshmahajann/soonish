@@ -1,4 +1,5 @@
 import { CodeBlock } from "@/components/docs/CodeBlock";
+import { PackageTabs } from "@/components/docs/PackageTabs";
 import { Callout } from "@/components/docs/Callout";
 import { OnThisPage } from "@/components/docs/OnThisPage";
 
@@ -48,14 +49,7 @@ export default function InstallationPage() {
         <h2 id="install" className="text-2xl font-semibold mb-3" style={{ letterSpacing: "-0.02em" }}>
           Install
         </h2>
-        <p className="mb-2 text-sm" style={{ color: "#71717a" }}>npm</p>
-        <CodeBlock lang="bash" code="npm install soonish" />
-        <p className="mb-2 text-sm" style={{ color: "#71717a" }}>pnpm</p>
-        <CodeBlock lang="bash" code="pnpm add soonish" />
-        <p className="mb-2 text-sm" style={{ color: "#71717a" }}>yarn</p>
-        <CodeBlock lang="bash" code="yarn add soonish" />
-        <p className="mb-2 text-sm" style={{ color: "#71717a" }}>bun</p>
-        <CodeBlock lang="bash" code="bun add soonish" />
+        <PackageTabs />
 
         <h2 id="peer-deps" className="text-2xl font-semibold mt-8 mb-3" style={{ letterSpacing: "-0.02em" }}>
           Peer dependencies

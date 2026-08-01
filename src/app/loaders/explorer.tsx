@@ -66,7 +66,9 @@ export function LoaderExplorer() {
                   background: c.value,
                   // A ring rather than a border, so the swatch size never shifts.
                   boxShadow: active
-                    ? `0 0 0 2px #050505, 0 0 0 3.5px ${c.value}`
+                    // The inner 2px ring is a gap punched in the page colour, so
+                    // it has to track --bg or it reads as a mismatched dark ring.
+                    ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${c.value}`
                     : "0 0 0 1px rgba(255,255,255,0.18)",
                   transform: active ? "scale(1.08)" : undefined,
                   cursor: "pointer",

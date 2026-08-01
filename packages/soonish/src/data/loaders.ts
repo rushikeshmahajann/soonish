@@ -336,6 +336,41 @@ const DEFS: LoaderDef[] = [
     -((RINGS - chebyshev(x, y)) / RINGS) * 2.0),
 ];
 
+/**
+ * Pulse-wave family. Their tempo is tuned as a group, so it lives here rather
+ * than being edited loader by loader.
+ */
+const PULSE_WAVE = new Set([
+  'sweep', 'diagonal', 'ripple', 'rain', 'spiral', 'snake', 'sparkle',
+  'heartbeat', 'scanner', 'orbit', 'breathe', 'checker', 'stripes', 'falling',
+  'plasma', 'loadbar', 'knight-tour', 'vortex', 'sine-wave', 'life',
+  'quadrants', 'crossfade', 'glider', 'matrix', 'pong', 'concentric',
+  'twin-spirals',
+]);
+
+/** <1 speeds up. 0.8 == 20% quicker. */
+const PULSE_TEMPO = 0.8;
+
+/**
+ * Rescale a loader's tempo.
+ *
+ * Duration and every per-dot delay must scale by the same factor. A delay is an
+ * absolute number of seconds representing a *fraction* of the cycle, so touching
+ * the duration alone silently shifts every dot's phase — the exact trap that the
+ * duration-written-twice pattern sets. Scaling the resolved delay sidesteps it
+ * whatever arithmetic produced the value.
+ */
+function retempo(def: ProceduralDef, factor: number): ProceduralDef {
+  return {
+    ...def,
+    duration: Math.round(def.duration * factor * 1000) / 1000,
+    delay: (x, y, i) => {
+      const d = def.delay(x, y, i);
+      return d === 999 ? 999 : d * factor; // 999 is the mask sentinel, not a time
+    },
+  };
+}
+
 // ---- Name-to-slug mapping ----
 function toSlug(name: string): string {
   return name.toLowerCase().replace(/[\s.]+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -343,7 +378,9 @@ function toSlug(name: string): string {
 
 export const LOADER_REGISTRY: Record<string, LoaderDef> = {};
 for (const def of DEFS) {
-  LOADER_REGISTRY[toSlug(def.name)] = def;
+  const slug = toSlug(def.name);
+  LOADER_REGISTRY[slug] =
+    def.kind === 'procedural' && PULSE_WAVE.has(slug) ? retempo(def, PULSE_TEMPO) : def;
 }
 
 // Compiled fields. Only the sampled curve data reaches the browser — everything

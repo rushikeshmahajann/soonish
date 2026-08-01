@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/docs/Sidebar";
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen" style={{ background: "#050505", color: "#fafafa" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)", color: "#fafafa" }}>
       {/* Top nav */}
       <header
         className="fixed top-0 inset-x-0 z-50 h-14 flex items-center px-6 gap-6"
