@@ -8,3 +8,9 @@ export const SOCIALS = {
   x: { label: "X", icon: FaXTwitter, href: "https://x.com/rushy_0" },
   linkedin: { label: "LinkedIn", icon: FaLinkedin, href: "https://www.linkedin.com/in/rushikeshmahajann/" },
 } as const;
+
+/** The soonish repo itself — the navbar's star button points here. */
+export const REPO = {
+  slug: "rushikeshmahajann/soonish",
+  href: "https://github.com/rushikeshmahajann/soonish",
+} as const;

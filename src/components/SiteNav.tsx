@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { SOCIALS } from "@/lib/socials";
 import { cn } from "@/lib/utils";
+import { GitHubStar } from "./GitHubStar";
 import { SoonishIcon } from "./SoonishIcon";
 
 /**
- * The site navbar: the icon as the home link on the left; Docs, X and GitHub
- * on the right. Shared by the landing page (floating over the hero shader) and
+ * The site navbar: the icon as the home link on the left; Docs, X and a GitHub
+ * star button (with the live count) on the right. Shared by the landing page (floating over the hero shader) and
  * the docs (a fixed header), so the two can never drift apart — only the
  * positioning differs, passed in as `className`.
  *
@@ -24,13 +25,13 @@ export function SiteNav({ className }: { className?: string }) {
             still shows through while the labels stay legible. */}
         <Link
           href="/docs"
-          className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-sm text-white/90 backdrop-blur-xl transition-colors outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
+          className="flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-sm text-white/90 backdrop-blur-xl transition-colors outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
         >
           Docs
         </Link>
-        {/* Same surface as Docs, as circles, so the three read as one set.
+        {/* Same surface as Docs, as circles, so the set reads as one.
             Icon-only, so the name goes on the link. */}
-        {[SOCIALS.x, SOCIALS.github]
+        {[SOCIALS.x]
           .filter((s) => s.href)
           .map((s) => (
             <a
@@ -40,11 +41,12 @@ export function SiteNav({ className }: { className?: string }) {
               rel="noopener noreferrer"
               aria-label={s.label}
               title={s.label}
-              className="grid size-7 place-items-center rounded-full bg-black/40 text-white/90 backdrop-blur-xl transition-colors outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
+              className="grid size-7 place-items-center rounded-full bg-black/80 text-white/90 backdrop-blur-xl transition-colors outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
             >
               <s.icon size={14} aria-hidden="true" />
             </a>
           ))}
+        <GitHubStar />
       </div>
     </nav>
   );
