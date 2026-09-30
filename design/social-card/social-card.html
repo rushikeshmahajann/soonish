@@ -1,0 +1,49 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600&family=JetBrains+Mono:wght@400&display=block" rel="stylesheet">
+<style>
+@font-face { font-family: "PP Mori"; src: url("../../src/app/fonts/PPMori-Regular.otf"); font-weight: 400; }
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1280px; height: 640px; background: #0a0a0a; overflow: hidden; }
+.card { position: relative; width: 1280px; height: 640px; padding: 72px 80px; display: flex; gap: 64px; align-items: center; color: #fff; font-family: "PP Mori", Inter, system-ui, sans-serif; }
+/* Dither field fading up from the bottom, like the hero shader */
+.card::before { content: ""; position: absolute; inset: 0; z-index: 0;
+  background-image: radial-gradient(circle, rgba(205,200,104,.8) 1.5px, transparent 1.7px);
+  background-size: 14px 14px;
+  -webkit-mask-image: radial-gradient(140% 62% at 45% 118%, #000 0%, rgba(0,0,0,.45) 38%, transparent 68%);
+          mask-image: radial-gradient(140% 62% at 45% 118%, #000 0%, rgba(0,0,0,.45) 38%, transparent 68%); }
+/* Soft accent glow behind the frames */
+.card::after { content: ""; position: absolute; right: -120px; top: 40px; width: 620px; height: 560px; z-index: 0;
+  background: radial-gradient(closest-side, rgba(205,200,104,.13), transparent); }
+.left, .right { position: relative; z-index: 1; }
+.left { flex: 1; display: flex; flex-direction: column; }
+.brand { display: flex; align-items: center; gap: 22px; }
+.brand img { width: 104px; height: auto; margin: -22px -18px -24px -20px; }
+.word { font-family: "Pixelify Sans", monospace; font-weight: 600; font-size: 104px; letter-spacing: -5px; line-height: 1;
+  background: linear-gradient(180deg, #FFF3B7 39%, #FFE748 77%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h1 { margin-top: 40px; font-weight: 400; font-size: 44px; letter-spacing: -1.4px; line-height: 1.12; }
+p.sub { margin-top: 14px; font-size: 22px; color: rgba(255,255,255,.5); letter-spacing: -.3px; }
+.cmd { margin-top: 34px; align-self: flex-start; display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-radius: 10px;
+  background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.08);
+  font: 19px "JetBrains Mono", monospace; color: rgba(255,255,255,.72); letter-spacing: -.3px; }
+.cmd b { color: #CDC868; font-weight: 400; }
+.foot { margin-top: auto; padding-top: 34px; display: flex; gap: 22px; font: 16px "JetBrains Mono", monospace; color: rgba(255,255,255,.35); }
+.foot span + span::before { content: "·"; margin-right: 22px; color: rgba(255,255,255,.2); }
+.right { display: grid; grid-template-columns: repeat(3, 118px); gap: 18px; align-self: center; }
+figure { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 0 14px; border-radius: 14px; background: rgba(255,255,255,.025); }
+.m { display: grid; grid-template-columns: repeat(5, 10px); gap: 4px; }
+.m i { width: 10px; height: 10px; border-radius: 2px; }
+.m i.on { background: #CDC868; box-shadow: 0 0 8px rgba(205,200,104,.55); }
+.m i.off { background: rgba(205,200,104,.14); }
+figcaption { font: 12px "JetBrains Mono", monospace; color: rgba(255,255,255,.35); }
+</style></head><body>
+<div class="card">
+  <div class="left">
+    <div class="brand"><img src="../soonish-icon.png" alt=""><span class="word">soonish</span></div>
+    <h1>91 loading animations<br>for React.</h1>
+    <p class="sub">Each on a 5×5 grid of dots · Plain CSS · Yours to edit</p>
+    <div class="cmd"><b>$</b> npx shadcn@latest add …/r/thinking.json</div>
+    <div class="foot"><span>soonish.rushikeshmahajan.com</span><span>github.com/rushikeshmahajann/soonish</span></div>
+  </div>
+  <div class="right"><figure><div class="m"><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i></div><figcaption>thinking</figcaption></figure><figure><div class="m"><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i></div><figcaption>rain</figcaption></figure><figure><div class="m"><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i></div><figcaption>ripple</figcaption></figure><figure><div class="m"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><figcaption>spiral</figcaption></figure><figure><div class="m"><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i></div><figcaption>sparkle</figcaption></figure><figure><div class="m"><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></div><figcaption>loadbar</figcaption></figure></div>
+</div></body></html>

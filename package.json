@@ -2,6 +2,7 @@
   "name": "soonish-site",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "packageManager": "pnpm@10.17.0",
   "engines": {
     "node": ">=20.9 <25",

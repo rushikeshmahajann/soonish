@@ -69,7 +69,12 @@ const PATH = buildPath(ZONE);
 const HEIGHT = ROWS.length * ROW_H;
 const SVG_W = colX(2) + DOT_R * 4;
 
-export function Sidebar() {
+/**
+ * The tree itself — connectors, dots and the gliding accent pointer. Shared by
+ * the desktop sidebar and the mobile drawer. `onNavigate` fires when a page
+ * link is followed (the drawer uses it to close).
+ */
+export function DocsTree({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const target = ROWS.findIndex((r) => r.href === pathname);
 
@@ -156,98 +161,106 @@ export function Sidebar() {
   }, [target]);
 
   return (
+    <div className="rounded-xl px-2 py-3">
+      <div className="relative" style={{ height: HEIGHT }}>
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 left-0 overflow-visible"
+          width={SVG_W}
+          height={HEIGHT}
+          viewBox={`0 0 ${SVG_W} ${HEIGHT}`}
+        >
+          <defs>
+            <linearGradient ref={gradRef} id={gradId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style={{ stopColor: "var(--brand)", stopOpacity: 0 }} />
+              <stop offset="0.55" style={{ stopColor: "var(--brand)", stopOpacity: 0.55 }} />
+              <stop offset="1" style={{ stopColor: "var(--brand)", stopOpacity: 1 }} />
+            </linearGradient>
+          </defs>
+          {/* The trunk: every row's connector. */}
+          <path
+            d={PATH}
+            fill="none"
+            stroke="rgba(255,255,255,0.12)"
+            strokeWidth={1.4}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* The glowing tail, dashed down to one segment by the effect. */}
+          <path
+            ref={hlRef}
+            d={PATH}
+            fill="none"
+            stroke={`url(#${gradId})`}
+            strokeWidth={2}
+            strokeLinecap="round"
+            style={{ strokeDasharray: "0 99999", filter: "drop-shadow(0 0 3px var(--brand))" }}
+          />
+          {CONN.map((r) => (
+            <circle
+              key={r.i}
+              cx={colX(r.depth)}
+              cy={rowY(r.i)}
+              r={DOT_R}
+              fill={r.depth === 1 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.25)"}
+            />
+          ))}
+          <circle
+            ref={dotRef}
+            r={DOT_R + 1}
+            cx={-99}
+            cy={-99}
+            style={{
+              fill: "var(--brand)",
+              opacity: 0,
+              filter: "drop-shadow(0 0 4px var(--brand)) drop-shadow(0 0 9px var(--brand))",
+            }}
+          />
+        </svg>
+
+        {ROWS.map((r, i) => {
+          const padding = colX(r.depth) + LABEL_GAP;
+          const rowClass = "relative z-10 flex w-full items-center rounded-md pr-3 font-mori text-sm";
+
+          if (!r.href) {
+            // Section group: a label on the tree, not a page.
+            return (
+              <div key={i} className={cn(rowClass, "font-medium text-white/85")} style={{ height: ROW_H, paddingLeft: padding }}>
+                {r.label}
+              </div>
+            );
+          }
+          const active = i === target;
+          return (
+            <Link
+              key={i}
+              href={r.href}
+              onClick={onNavigate}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                rowClass,
+                "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+                active ? "font-medium text-white" : "text-white/50 hover:text-white",
+              )}
+              style={{ height: ROW_H, paddingLeft: padding }}
+            >
+              {r.label}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Desktop docs navigation: the tree, pinned beside the content (md and up). */
+export function Sidebar() {
+  return (
     <nav
       aria-label="Docs"
       className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 overflow-y-auto pt-14 pb-12 pr-2 md:block"
     >
-      <div className="rounded-xl px-2 py-3">
-        <div className="relative" style={{ height: HEIGHT }}>
-          <svg
-            aria-hidden="true"
-            className="pointer-events-none absolute top-0 left-0 overflow-visible"
-            width={SVG_W}
-            height={HEIGHT}
-            viewBox={`0 0 ${SVG_W} ${HEIGHT}`}
-          >
-            <defs>
-              <linearGradient ref={gradRef} id={gradId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" style={{ stopColor: "var(--brand)", stopOpacity: 0 }} />
-                <stop offset="0.55" style={{ stopColor: "var(--brand)", stopOpacity: 0.55 }} />
-                <stop offset="1" style={{ stopColor: "var(--brand)", stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            {/* The trunk: every row's connector. */}
-            <path
-              d={PATH}
-              fill="none"
-              stroke="rgba(255,255,255,0.12)"
-              strokeWidth={1.4}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {/* The glowing tail, dashed down to one segment by the effect. */}
-            <path
-              ref={hlRef}
-              d={PATH}
-              fill="none"
-              stroke={`url(#${gradId})`}
-              strokeWidth={2}
-              strokeLinecap="round"
-              style={{ strokeDasharray: "0 99999", filter: "drop-shadow(0 0 3px var(--brand))" }}
-            />
-            {CONN.map((r) => (
-              <circle
-                key={r.i}
-                cx={colX(r.depth)}
-                cy={rowY(r.i)}
-                r={DOT_R}
-                fill={r.depth === 1 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.25)"}
-              />
-            ))}
-            <circle
-              ref={dotRef}
-              r={DOT_R + 1}
-              cx={-99}
-              cy={-99}
-              style={{
-                fill: "var(--brand)",
-                opacity: 0,
-                filter: "drop-shadow(0 0 4px var(--brand)) drop-shadow(0 0 9px var(--brand))",
-              }}
-            />
-          </svg>
-
-          {ROWS.map((r, i) => {
-            const padding = colX(r.depth) + LABEL_GAP;
-            const rowClass = "relative z-10 flex w-full items-center rounded-md pr-3 font-mori text-sm";
-
-            if (!r.href) {
-              // Section group: a label on the tree, not a page.
-              return (
-                <div key={i} className={cn(rowClass, "font-medium text-white/85")} style={{ height: ROW_H, paddingLeft: padding }}>
-                  {r.label}
-                </div>
-              );
-            }
-            const active = i === target;
-            return (
-              <Link
-                key={i}
-                href={r.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  rowClass,
-                  "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/40",
-                  active ? "font-medium text-white" : "text-white/50 hover:text-white",
-                )}
-                style={{ height: ROW_H, paddingLeft: padding }}
-              >
-                {r.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      <DocsTree />
     </nav>
   );
 }

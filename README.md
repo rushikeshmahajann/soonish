@@ -94,6 +94,10 @@ pnpm lint
 
 Registry links are baked in at build time. Set **`REGISTRY_URL`** to the production URL (e.g. `https://soonish.rushikeshmahajan.com`) — it also sets `metadataBase` for the OpenGraph image. On Vercel it falls back to the production domain automatically. Redeploy after changing the domain.
 
+## License
+
+[MIT](LICENSE) © Rushikesh Mahajan — use it, change it, ship it.
+
 ---
 
 <div align="center">
