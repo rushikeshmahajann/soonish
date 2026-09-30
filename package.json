@@ -17,14 +17,10 @@
     "registry:build": "tsx scripts/build-registry.ts"
   },
   "dependencies": {
-    "@base-ui/react": "^1.8.0",
     "@hugeicons/core-free-icons": "^4.2.3",
     "@hugeicons/react": "^1.1.9",
-    "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "geist": "^1.7.2",
-    "lucide-react": "^1.48.0",
-    "mathjs": "^15.2.0",
     "motion": "^13.4.4",
     "next": "16.2.4",
     "ogl": "^1.0.11",

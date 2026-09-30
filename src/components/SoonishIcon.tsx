@@ -11,7 +11,7 @@ const S = [
 ];
 
 // Dot centres and radius from the original 256×256 export
-// (public/Soonish App Icon — SVG Export.svg).
+// (design/soonish-app-icon.svg).
 const PITCH = 35.2;
 const ORIGIN = 57.6;
 const R = 13.2;

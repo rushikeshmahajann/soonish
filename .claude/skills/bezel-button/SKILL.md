@@ -139,6 +139,6 @@ never eats clicks.
 
 ## Related
 
-`src/app/lab/lab.css` has a scoped copy (`.lab-btn`) for the experiment page.
-The two are currently maintained separately — if the bezel changes here, update
-both, or extract a shared `<Button>` component first.
+Wherever it appears — the package-manager switcher's indicator, the accent menu
+and the soonish icon tile — it is this one `.custom-button` class, so a change
+here restyles all of them.

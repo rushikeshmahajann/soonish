@@ -1,6 +1,7 @@
 {
   "name": "soonish",
   "version": "0.1.0",
+  "private": true,
   "description": "74 animated 5\u00d75 pixel grid loaders for React \u2014 customizable color, size, speed",
   "keywords": [
     "react",
