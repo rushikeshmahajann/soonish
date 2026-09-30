@@ -1,135 +1,86 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { OnThisPage } from "@/components/docs/OnThisPage";
 import { Callout } from "@/components/docs/Callout";
+import { PlaygroundCard } from "@/components/docs/PlaygroundCard";
+import { A, C, DocPage, H2, P, Strong } from "@/components/docs/Prose";
+import { Loader, type LoaderName } from "soonish";
+import { TOTAL } from "../loaders/groups";
 
-const TOC = [
-  { id: "what-is", title: "What is soonish?", level: 2 as const },
-  { id: "features", title: "Features", level: 2 as const },
-  { id: "loader-types", title: "Loader Types", level: 2 as const },
-  { id: "next-steps", title: "Next Steps", level: 2 as const },
+export const metadata: Metadata = {
+  title: "Introduction",
+  description: "What soonish is and what it gives you.",
+};
+
+// Each feature is fronted by a live soonish loader as its icon, so the cards
+// show the library off rather than just describing it.
+const FEATURES: { title: string; desc: string; loader: LoaderName }[] = [
+  { title: `${TOTAL} loaders`, desc: "Pulse waves, AI states, scale effects, mandalas and more.", loader: "sparkle" },
+  { title: "Yours to edit", desc: "The source is copied into your project. No dependency to update.", loader: "loadbar" },
+  { title: "Five simple props", desc: "Color, size, dot size, spacing and speed.", loader: "scale-pop" },
+  { title: "Typed names", desc: "Loader names are typed, so your editor autocompletes them.", loader: "indexing" },
+  { title: "Plain CSS", desc: "Animated with transform and opacity only. No canvas, no JavaScript loop.", loader: "ripple" },
+  { title: "Server Components", desc: "No hooks, so it works in Server and Client Components.", loader: "streaming" },
+];
+
+const NEXT = [
+  { href: "/docs/installation", label: "Installation", desc: "Add soonish with the shadcn CLI." },
+  { href: "/docs/quick-start", label: "Quick Start", desc: "Your first loader in a minute." },
+  { href: "/docs/customization", label: "Customization", desc: "Color, size, spacing and speed." },
 ];
 
 export default function IntroductionPage() {
   return (
-    <>
-      <main className="flex-1 min-w-0 py-10 px-8">
-        {/* Breadcrumb */}
-        <p className="text-xs mb-6" style={{ color: "#52525b", fontFamily: "monospace" }}>
-          Getting Started
-        </p>
+    <DocPage>
+      {/* The page has no header, so its first heading is the h1. */}
+      <H2 id="what-is" as="h1">
+        What is soonish?
+      </H2>
+      <P>
+        <Strong>soonish</Strong> gives you {TOTAL} loading animations for React. Each one is drawn on the same 5×5 grid
+        of dots and animated with plain CSS.
+      </P>
+      <P>
+        You install it with the shadcn CLI, which copies the code into your project — so it&apos;s yours to change.
+        Then use <C>{"<Loader />"}</C> anywhere in your app.
+      </P>
 
-        <h1 className="text-4xl font-bold tracking-tight mb-3" style={{ letterSpacing: "-0.03em" }}>
-          Introduction
-        </h1>
-        <p className="text-lg mb-8" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
-          A library of 68 animated 5×5 pixel grid loaders for React. Every loader is
-          built on the same 25-pixel grid — only the timing and per-pixel delay changes.
-        </p>
+      <H2 id="features">Features</H2>
+      <div className="mb-8 grid gap-3 sm:grid-cols-2">
+        {FEATURES.map((f) => (
+          <div
+            key={f.title}
+            className="group rounded-md bg-white/2 p-5 transition-colors hover:bg-white/3"
+          >
+            <Loader name={f.loader} size={22} dotSize={3} speed={0.7} color="var(--brand)" />
+            <p className="mt-4 mb-1 font-mori text-sm font-medium text-white/85 transition-colors group-hover:text-white">
+              {f.title}
+            </p>
+            <p className="text-sm leading-6 text-white/45">{f.desc}</p>
+          </div>
+        ))}
+        {/* Spans both columns, under the six feature tiles. */}
+        <PlaygroundCard />
+      </div>
 
-        <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.06)", marginBottom: "2rem" }} />
+      <Callout type="tip">
+        Browse all {TOTAL} loaders on the <A href="/">home page</A>. Hover one to copy its install command.
+      </Callout>
 
-        {/* What is */}
-        <h2 id="what-is" className="text-2xl font-semibold mb-3" style={{ letterSpacing: "-0.02em" }}>
-          What is soonish?
-        </h2>
-        <p className="mb-4" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          <strong style={{ color: "#fafafa" }}>soonish</strong> is a zero-dependency React component library that
-          ships 68 loading animations, all built on a 5×5 pixel grid. Each loader is a tiny
-          25-pixel canvas animated entirely with CSS — no canvas, no SVG, no heavy runtime.
-        </p>
-        <p className="mb-8" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          Drop a single <code style={{ color: "#d8d8d8", fontFamily: "monospace" }}>&lt;Loader&gt;</code> component
-          anywhere in your app. Styles are auto-injected on first render — no separate CSS import required.
-        </p>
-
-        {/* Features */}
-        <h2 id="features" className="text-2xl font-semibold mb-4" style={{ letterSpacing: "-0.02em" }}>
-          Features
-        </h2>
-        <div className="grid sm:grid-cols-2 gap-3 mb-8">
-          {[
-            { icon: "⬡", title: "68 unique loaders",     desc: "Pulse, scale, AI-process, and mandala animations." },
-            { icon: "⌘", title: "Zero config",           desc: "Styles inject automatically. No CSS import needed." },
-            { icon: "◈", title: "Fully customizable",    desc: "Control color, size, gap, and speed via props." },
-            { icon: "◻", title: "TypeScript first",      desc: "All 68 loader names are typed for IDE autocomplete." },
-            { icon: "◎", title: "Low paint cost",         desc: "Transform and opacity motion without animated glow." },
-            { icon: "◉", title: "Next.js App Router",    desc: "Works in client components out of the box." },
-          ].map((f) => (
-            <div
-              key={f.title}
-              className="rounded-lg p-4"
-              style={{ border: "1px solid rgba(255,255,255,0.06)", background: "#111113" }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span style={{ color: "#d8d8d8", fontSize: "1rem" }}>{f.icon}</span>
-                <span className="font-medium text-sm">{f.title}</span>
-              </div>
-              <p className="text-sm" style={{ color: "#71717a", lineHeight: 1.6 }}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Loader types */}
-        <h2 id="loader-types" className="text-2xl font-semibold mb-4" style={{ letterSpacing: "-0.02em" }}>
-          Loader Types
-        </h2>
-        <div className="space-y-3 mb-8">
-          {[
-            { name: "Pulse Wave",  count: 27, desc: "Brightness-pulse animations — sweep, ripple, spiral, scanner, rain, and more." },
-            { name: "AI / Process", count: 10, desc: "Named for agent states — thinking, searching, streaming, reasoning." },
-            { name: "Scale",       count: 16, desc: "Pixels scale in and out with twist, jelly, bounce, pop-rotate, and zigzag effects." },
-            { name: "Mandalas",    count: 15, desc: "Symmetric patterns — round, snowflake, gear, octagon, lotus, and more." },
-          ].map((t) => (
-            <div
-              key={t.name}
-              className="flex items-start gap-4 rounded-lg px-4 py-3"
-              style={{ border: "1px solid rgba(255,255,255,0.06)", background: "#111113" }}
-            >
-              <span
-                className="shrink-0 mt-0.5 text-xs font-semibold px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(255,255,255,0.06)", color: "#d8d8d8", fontFamily: "monospace" }}
-              >
-                {t.count}
-              </span>
-              <div>
-                <p className="font-medium text-sm mb-0.5">{t.name}</p>
-                <p className="text-sm" style={{ color: "#71717a", lineHeight: 1.6 }}>{t.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <Callout type="tip">
-          All 68 loaders are previewed live in the{" "}
-          <Link href="/" style={{ color: "#d8d8d8", textDecoration: "underline" }}>showcase →</Link>
-        </Callout>
-
-        {/* Next steps */}
-        <h2 id="next-steps" className="text-2xl font-semibold mb-4" style={{ letterSpacing: "-0.02em" }}>
-          Next Steps
-        </h2>
-        <div className="grid sm:grid-cols-3 gap-3">
-          {[
-            { href: "/docs/installation", label: "Installation →", desc: "Install the package in your project." },
-            { href: "/docs/quick-start",  label: "Quick Start →",  desc: "Your first loader in 60 seconds." },
-            { href: "/docs/customization",label: "Customization →",desc: "Color, size, gap, and speed." },
-          ].map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="block rounded-lg p-4 transition-all group"
-              style={{ border: "1px solid rgba(255,255,255,0.06)", background: "#111113" }}
-            >
-              <p className="font-medium text-sm mb-1 group-hover:text-[#f1f1f1] transition-colors">
-                {card.label}
-              </p>
-              <p className="text-xs" style={{ color: "#71717a" }}>{card.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </main>
-
-      <OnThisPage items={TOC} />
-    </>
+      <H2 id="next-steps">Next steps</H2>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {NEXT.map((card) => (
+          <Link
+            key={card.href}
+            href={card.href}
+            className="group block rounded-md bg-white/2 p-4 transition-colors outline-none hover:bg-white/4 focus-visible:ring-2 focus-visible:ring-white/40"
+          >
+            <p className="mb-1 font-mori text-sm font-medium text-white/85 transition-colors group-hover:text-white">
+              {card.label} →
+            </p>
+            <p className="text-xs leading-5 text-white/40">{card.desc}</p>
+          </Link>
+        ))}
+      </div>
+    </DocPage>
   );
 }

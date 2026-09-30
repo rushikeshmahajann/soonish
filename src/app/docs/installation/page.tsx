@@ -1,97 +1,101 @@
+import type { Metadata } from "next";
 import { CodeBlock } from "@/components/docs/CodeBlock";
 import { PackageTabs } from "@/components/docs/PackageTabs";
 import { Callout } from "@/components/docs/Callout";
-import { OnThisPage } from "@/components/docs/OnThisPage";
+import { A, C, DocHeader, DocPage, H2, P, Strong } from "@/components/docs/Prose";
+import { registryOrigin } from "@/lib/registry";
+import { TOTAL } from "../../loaders/groups";
 
-const TOC = [
-  { id: "requirements", title: "Requirements",     level: 2 as const },
-  { id: "install",      title: "Install",          level: 2 as const },
-  { id: "peer-deps",    title: "Peer dependencies",level: 2 as const },
-  { id: "verify",       title: "Verify",           level: 2 as const },
+export const metadata: Metadata = {
+  title: "Installation",
+  description: "Add soonish to your project with the shadcn CLI — everything, or one loader at a time.",
+};
+
+const REQUIREMENTS = [
+  ["React", "18 or later"],
+  ["A shadcn project", "one with a components.json"],
+  ["TypeScript", "5 or later (optional but recommended)"],
 ];
 
 export default function InstallationPage() {
+  const origin = registryOrigin();
+
   return (
-    <>
-      <main className="flex-1 min-w-0 py-10 px-8">
-        <p className="text-xs mb-6" style={{ color: "#52525b", fontFamily: "monospace" }}>
-          Getting Started
-        </p>
+    <DocPage>
+      <DocHeader eyebrow="Getting Started" title="Installation">
+        soonish installs with the shadcn CLI. It copies the source into your project, so there&apos;s no package to
+        update and you can edit anything.
+      </DocHeader>
 
-        <h1 className="text-4xl font-bold tracking-tight mb-3" style={{ letterSpacing: "-0.03em" }}>
-          Installation
-        </h1>
-        <p className="text-lg mb-8" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
-          Install <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>soonish</code> from the npm registry.
-          It takes less than 30 seconds.
-        </p>
+      <H2 id="requirements">Requirements</H2>
+      <ul className="mb-4 space-y-2">
+        {REQUIREMENTS.map(([pkg, ver]) => (
+          <li key={pkg} className="flex items-center gap-3 text-sm">
+            <span aria-hidden="true" className="size-1 rounded-full" style={{ background: "var(--brand)" }} />
+            <span className="text-white/50">
+              <Strong>{pkg}</Strong> {ver}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <P>
+        No <C>components.json</C> yet? Run <C>npx shadcn@latest init</C> first.
+      </P>
 
-        <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.06)", marginBottom: "2rem" }} />
+      <H2 id="install">Install</H2>
+      <P className="mb-0">Add everything — all {TOTAL} loaders:</P>
+      <PackageTabs origin={origin} />
 
-        <h2 id="requirements" className="text-2xl font-semibold mb-3" style={{ letterSpacing: "-0.02em" }}>
-          Requirements
-        </h2>
-        <ul className="space-y-2 mb-8">
-          {[
-            ["React", "18 or later"],
-            ["Node.js", "18 or later"],
-            ["TypeScript", "5 or later (optional but recommended)"],
-          ].map(([pkg, ver]) => (
-            <li key={pkg} className="flex items-center gap-3 text-sm">
-              <span style={{ color: "#d8d8d8", fontFamily: "monospace" }}>✓</span>
-              <span style={{ color: "#a1a1aa" }}>
-                <strong style={{ color: "#fafafa" }}>{pkg}</strong> {ver}
-              </span>
-            </li>
-          ))}
-        </ul>
+      <H2 id="single">Add a single loader</H2>
+      <P>
+        Each loader is also available on its own, as a named component. The first one you add brings the core files
+        with it; later ones skip files you already have.
+      </P>
+      <PackageTabs origin={origin} item="thinking" />
+      <CodeBlock
+        lang="tsx"
+        code={`import { ThinkingLoader } from '@/components/soonish/loaders/thinking';
 
-        <h2 id="install" className="text-2xl font-semibold mb-3" style={{ letterSpacing: "-0.02em" }}>
-          Install
-        </h2>
-        <PackageTabs />
+<ThinkingLoader color="#CDC868" />`}
+      />
+      <P>
+        Find the one you want on the <A href="/">home page</A>. Hover a loader to copy its command.
+      </P>
 
-        <h2 id="peer-deps" className="text-2xl font-semibold mt-8 mb-3" style={{ letterSpacing: "-0.02em" }}>
-          Peer dependencies
-        </h2>
-        <p className="mb-4 text-sm" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          <code style={{ fontFamily: "monospace", color: "#d8d8d8" }}>soonish</code> requires{" "}
-          <code style={{ fontFamily: "monospace" }}>react</code> and{" "}
-          <code style={{ fontFamily: "monospace" }}>react-dom</code> as peer dependencies.
-          If your project already uses React you don&apos;t need to install them separately.
-        </p>
-        <CodeBlock
-          lang="bash"
-          code="npm install react react-dom"
-        />
-        <Callout type="note">
-          The package ships its own styles. You do <strong>not</strong> need to import any CSS file — styles are
-          automatically injected into the document head on first render.
-        </Callout>
+      <H2 id="files">What gets added</H2>
+      <CodeBlock
+        lang="tree"
+        code={`components/soonish/
+├── index.ts            # exports Loader, getMatrix5Layout, types
+├── Loader.tsx
+├── types.ts · layout.ts
+├── data/loaders.ts     # every loader's timing
+├── engine/             # data for the field-based loaders
+├── styles/             # base.css + fields.generated.css
+└── loaders/            # one file per loader you add`}
+      />
+      <Callout type="note">
+        The styles are plain CSS that <C>Loader.tsx</C> imports itself. There&apos;s no Tailwind config to change and
+        no stylesheet to add. In a <C>src/</C> project, the files go in <C>src/components/soonish</C>.
+      </Callout>
 
-        <h2 id="verify" className="text-2xl font-semibold mb-3" style={{ letterSpacing: "-0.02em" }}>
-          Verify the installation
-        </h2>
-        <p className="mb-4 text-sm" style={{ color: "#a1a1aa", lineHeight: 1.7 }}>
-          Paste this snippet into any client component to confirm everything is working:
-        </p>
-        <CodeBlock
-          filename="app/page.tsx"
-          lang="tsx"
-          code={`import { Loader } from 'soonish';
+      <H2 id="verify">Check that it works</H2>
+      <P>
+        Drop this into any page:
+      </P>
+      <CodeBlock
+        filename="app/page.tsx"
+        lang="tsx"
+        code={`import { Loader } from '@/components/soonish';
 
 export default function Page() {
   return <Loader name="sweep" />;
 }`}
-        />
-        <p className="text-sm" style={{ color: "#a1a1aa" }}>
-          You should see a muted sweep animation. If you see a blank page, check the{" "}
-          <a href="/docs/quick-start" style={{ color: "#d8d8d8", textDecoration: "underline" }}>Quick Start</a> guide
-          for framework-specific setup.
-        </p>
-      </main>
-
-      <OnThisPage items={TOC} />
-    </>
+      />
+      <P>
+        You should see the sweep animation. If the import fails, check your components alias — see{" "}
+        <A href="/docs/quick-start">Quick Start</A>.
+      </P>
+    </DocPage>
   );
 }

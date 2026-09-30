@@ -4,3 +4,22 @@
   position: relative;
   overflow: hidden;
 }
+
+/* Mounted after first paint (see DeferredPixelBlast), so fade in rather than
+   pop into view behind the heading. */
+.pixel-blast-container canvas {
+  display: block;
+  animation: pixel-blast-in 0.8s ease-out both;
+}
+
+@keyframes pixel-blast-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-blast-container canvas {
+    animation: none;
+  }
+}

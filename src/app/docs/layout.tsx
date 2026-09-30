@@ -1,70 +1,48 @@
-import Link from "next/link";
 import { Sidebar } from "@/components/docs/Sidebar";
+import { MobileDocsNav } from "@/components/docs/MobileDocsNav";
+import { AccentProvider } from "@/components/AccentProvider";
+import { AccentMenu } from "@/components/AccentMenu";
+import { PackageManagerProvider } from "@/components/PackageToggle";
+import { SiteNav } from "@/components/SiteNav";
+import { Footer } from "@/components/Footer";
 
+/**
+ * Docs shell, in the landing page's design language: the same navbar, accent
+ * colour, footer and accent menu. The accent persists across routes (it is
+ * stored and applied before paint), so the docs open in whatever colour the
+ * visitor picked on the landing page.
+ */
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg)", color: "#fafafa" }}>
-      {/* Top nav */}
-      <header
-        className="fixed top-0 inset-x-0 z-50 h-14 flex items-center px-6 gap-6"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(5,5,5,0.92)", backdropFilter: "blur(12px)" }}
-      >
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 shrink-0">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 5px)", gap: "1px" }}>
-            {Array.from({ length: 9 }, (_, i) => (
-              <span
-                key={i}
-                style={{
-                  width: 5, height: 5,
-                  background: i === 4 ? "#f1f1f1" : "#8f8f8f",
-                  boxShadow: "none",
-                  borderRadius: 1,
-                }}
-              />
-            ))}
+    <AccentProvider>
+      <PackageManagerProvider>
+        <div className="min-h-screen bg-(--bg) text-white">
+          {/* The landing navbar as a fixed header. Content scrolls under it,
+              so it gets the frosted page colour instead of the
+              hero's transparency. h-16 is what the sidebar and "On this page"
+              rail stick below (top-16). */}
+          <SiteNav className="fixed inset-x-0 top-0 z-50 h-16 bg-(--bg)/80 backdrop-blur-xl" />
+
+          {/* Clears the fixed header. */}
+          <div aria-hidden="true" className="h-16" />
+          {/* Phones only (the tree sidebar is hidden below md). A direct child of
+              this full-height wrapper, so its sticky positioning lasts the
+              whole page rather than ending with a short parent. */}
+          <MobileDocsNav />
+          <div className="mx-auto flex max-w-7xl px-6">
+            <Sidebar />
+            {children}
+            {/* Mirror of the sidebar's width (w-60), so the content column sits
+                centred on the page rather than centred in the space beside the
+                sidebar. xl+ only: below that, a second 240px column would
+                squeeze the 680px reading column. */}
+            <div aria-hidden="true" className="hidden w-60 shrink-0 xl:block" />
           </div>
-          <span className="text-sm font-semibold tracking-tight" style={{ fontFamily: "monospace", color: "#fafafa" }}>
-            soonish
-          </span>
-        </Link>
 
-        <span style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
-
-        <Link href="/docs" className="text-sm" style={{ color: "#a1a1aa" }}>
-          Docs
-        </Link>
-
-        {/* Right side */}
-        <div className="ml-auto flex items-center gap-4">
-          <Link
-            href="/"
-            className="text-sm transition-colors"
-            style={{ color: "#71717a" }}
-          >
-            Showcase →
-          </Link>
-          <a
-            href="https://www.npmjs.com/package/soonish"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-md transition-all font-medium"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#fafafa",
-            }}
-          >
-            npm i soonish
-          </a>
+          <Footer />
+          <AccentMenu />
         </div>
-      </header>
-
-      {/* Body */}
-      <div className="flex pt-14 max-w-screen-xl mx-auto px-6">
-        <Sidebar />
-        {children}
-      </div>
-    </div>
+      </PackageManagerProvider>
+    </AccentProvider>
   );
 }

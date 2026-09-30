@@ -1,37 +1,17 @@
 'use client';
 
 // Component inspired by github.com/zavalit/bayer-dithering-webgl-demo
+//
+// Rendered with OGL rather than three.js + postprocessing. The effect is one
+// full-screen shader, so three's scene graph and the postprocessing composer
+// were ~150 KB gzipped of runtime for what OGL does in a fraction of that.
+// The liquid and noise post-passes went with them — nothing used them.
 
-import { Effect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
+import { Color, Mesh, Program, Renderer, Triangle } from 'ogl';
 import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
 import './PixelBlast.css';
 
 type PixelBlastVariant = 'square' | 'circle' | 'triangle' | 'diamond';
-
-interface TouchPoint {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  force: number;
-  age: number;
-}
-
-interface TouchTexture {
-  canvas: HTMLCanvasElement;
-  texture: THREE.Texture;
-  addTouch: (norm: { x: number; y: number }) => void;
-  update: () => void;
-  radiusScale: number;
-  size: number;
-}
-
-interface ReinitConfig {
-  antialias: boolean;
-  liquid: boolean;
-  noiseAmount: number;
-}
 
 type PixelBlastProps = {
   variant?: PixelBlastVariant;
@@ -42,136 +22,15 @@ type PixelBlastProps = {
   antialias?: boolean;
   patternScale?: number;
   patternDensity?: number;
-  liquid?: boolean;
-  liquidStrength?: number;
-  liquidRadius?: number;
   pixelSizeJitter?: number;
   enableRipples?: boolean;
   rippleIntensityScale?: number;
   rippleThickness?: number;
   rippleSpeed?: number;
-  liquidWobbleSpeed?: number;
   autoPauseOffscreen?: boolean;
   speed?: number;
   transparent?: boolean;
   edgeFade?: number;
-  noiseAmount?: number;
-};
-
-const createTouchTexture = (): TouchTexture => {
-  const size = 64;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('2D context not available');
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const texture = new THREE.Texture(canvas);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.generateMipmaps = false;
-  const trail: TouchPoint[] = [];
-  let last: { x: number; y: number } | null = null;
-  const maxAge = 64;
-  let radius = 0.1 * size;
-  const speed = 1 / maxAge;
-  const clear = () => {
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  };
-  const drawPoint = (p: TouchPoint) => {
-    const pos = { x: p.x * size, y: (1 - p.y) * size };
-    let intensity = 1;
-    const easeOutSine = (t: number) => Math.sin((t * Math.PI) / 2);
-    const easeOutQuad = (t: number) => -t * (t - 2);
-    if (p.age < maxAge * 0.3) intensity = easeOutSine(p.age / (maxAge * 0.3));
-    else intensity = easeOutQuad(1 - (p.age - maxAge * 0.3) / (maxAge * 0.7)) || 0;
-    intensity *= p.force;
-    const color = `${((p.vx + 1) / 2) * 255}, ${((p.vy + 1) / 2) * 255}, ${intensity * 255}`;
-    const offset = size * 5;
-    ctx.shadowOffsetX = offset;
-    ctx.shadowOffsetY = offset;
-    ctx.shadowBlur = radius;
-    ctx.shadowColor = `rgba(${color},${0.22 * intensity})`;
-    ctx.beginPath();
-    ctx.fillStyle = 'rgba(255,0,0,1)';
-    ctx.arc(pos.x - offset, pos.y - offset, radius, 0, Math.PI * 2);
-    ctx.fill();
-  };
-  const addTouch = (norm: { x: number; y: number }) => {
-    let force = 0;
-    let vx = 0;
-    let vy = 0;
-    if (last) {
-      const dx = norm.x - last.x;
-      const dy = norm.y - last.y;
-      if (dx === 0 && dy === 0) return;
-      const dd = dx * dx + dy * dy;
-      const d = Math.sqrt(dd);
-      vx = dx / (d || 1);
-      vy = dy / (d || 1);
-      force = Math.min(dd * 10000, 1);
-    }
-    last = { x: norm.x, y: norm.y };
-    trail.push({ x: norm.x, y: norm.y, age: 0, force, vx, vy });
-  };
-  const update = () => {
-    clear();
-    for (let i = trail.length - 1; i >= 0; i--) {
-      const point = trail[i];
-      const f = point.force * speed * (1 - point.age / maxAge);
-      point.x += point.vx * f;
-      point.y += point.vy * f;
-      point.age++;
-      if (point.age > maxAge) trail.splice(i, 1);
-    }
-    for (let i = 0; i < trail.length; i++) drawPoint(trail[i]);
-    texture.needsUpdate = true;
-  };
-  return {
-    canvas,
-    texture,
-    addTouch,
-    update,
-    set radiusScale(v: number) {
-      radius = 0.1 * size * v;
-    },
-    get radiusScale() {
-      return radius / (0.1 * size);
-    },
-    size
-  };
-};
-
-const createLiquidEffect = (texture: THREE.Texture, opts?: { strength?: number; freq?: number }) => {
-  const fragment = `
-    uniform sampler2D uTexture;
-    uniform float uStrength;
-    uniform float uTime;
-    uniform float uFreq;
-
-    void mainUv(inout vec2 uv) {
-      vec4 tex = texture2D(uTexture, uv);
-      float vx = tex.r * 2.0 - 1.0;
-      float vy = tex.g * 2.0 - 1.0;
-      float intensity = tex.b;
-
-      float wave = 0.5 + 0.5 * sin(uTime * uFreq + intensity * 6.2831853);
-
-      float amt = uStrength * intensity * wave;
-
-      uv += vec2(vx, vy) * amt;
-    }
-    `;
-  return new Effect('LiquidEffect', fragment, {
-    uniforms: new Map<string, THREE.Uniform>([
-      ['uTexture', new THREE.Uniform(texture)],
-      ['uStrength', new THREE.Uniform(opts?.strength ?? 0.025)],
-      ['uTime', new THREE.Uniform(0)],
-      ['uFreq', new THREE.Uniform(opts?.freq ?? 4.5)]
-    ])
-  });
 };
 
 const SHAPE_MAP: Record<PixelBlastVariant, number> = {
@@ -181,13 +40,16 @@ const SHAPE_MAP: Record<PixelBlastVariant, number> = {
   diamond: 3
 };
 
-const VERTEX_SRC = `
+const MAX_CLICKS = 10;
+
+const VERTEX_SRC = `#version 300 es
+in vec2 position;
 void main() {
-  gl_Position = vec4(position, 1.0);
+  gl_Position = vec4(position, 0.0, 1.0);
 }
 `;
 
-const FRAGMENT_SRC = `
+const FRAGMENT_SRC = `#version 300 es
 precision highp float;
 
 uniform vec3  uColor;
@@ -209,7 +71,7 @@ const int SHAPE_CIRCLE   = 1;
 const int SHAPE_TRIANGLE = 2;
 const int SHAPE_DIAMOND  = 3;
 
-const int   MAX_CLICKS = 10;
+const int   MAX_CLICKS = ${MAX_CLICKS};
 
 uniform vec2  uClickPos  [MAX_CLICKS];
 uniform float uClickTimes[MAX_CLICKS];
@@ -342,20 +204,17 @@ void main(){
     M *= fade;
   }
 
-  vec3 color = uColor;
-
-  // sRGB gamma correction - convert linear to sRGB for accurate color output
-  vec3 srgbColor = mix(
-    color * 12.92,
-    1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055,
-    step(0.0031308, color)
-  );
-
-  fragColor = vec4(srgbColor, M);
+  // uColor arrives as the raw sRGB hex values. three.js converted the hex to
+  // linear on the CPU and this shader converted it back, which nets out to
+  // the same thing — so there is no gamma step here any more.
+  //
+  // Premultiplied output into a premultipliedAlpha context. This is the only
+  // draw and the canvas is cleared to transparent first, so writing the
+  // premultiplied value directly is exactly what blending onto the cleared
+  // buffer would produce, without enabling blending at all.
+  fragColor = vec4(uColor * M, M);
 }
 `;
-
-const MAX_CLICKS = 10;
 
 const PixelBlast: React.FC<PixelBlastProps> = ({
   variant = 'square',
@@ -366,333 +225,181 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   antialias = true,
   patternScale = 2,
   patternDensity = 1,
-  liquid = false,
-  liquidStrength = 0.1,
-  liquidRadius = 1,
   pixelSizeJitter = 0,
   enableRipples = true,
   rippleIntensityScale = 1,
   rippleThickness = 0.1,
   rippleSpeed = 0.3,
-  liquidWobbleSpeed = 4.5,
   autoPauseOffscreen = true,
   speed = 0.5,
   transparent = true,
-  edgeFade = 0.5,
-  noiseAmount = 0
+  edgeFade = 0.5
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const visibilityRef = useRef({ visible: true });
+  const programRef = useRef<Program | null>(null);
+  const dprRef = useRef(1);
+  // Read by the render loop and the resize handler, so prop changes take
+  // effect without tearing down the GL context.
   const speedRef = useRef(speed);
+  const pixelSizeRef = useRef(pixelSize);
+  const autoPauseRef = useRef(autoPauseOffscreen);
 
-  const threeRef = useRef<{
-    renderer: THREE.WebGLRenderer;
-    scene: THREE.Scene;
-    camera: THREE.OrthographicCamera;
-    material: THREE.ShaderMaterial;
-    clock: THREE.Clock;
-    clickIx: number;
-    uniforms: {
-      uResolution: { value: THREE.Vector2 };
-      uTime: { value: number };
-      uColor: { value: THREE.Color };
-      uClickPos: { value: THREE.Vector2[] };
-      uClickTimes: { value: Float32Array };
-      uShapeType: { value: number };
-      uPixelSize: { value: number };
-      uScale: { value: number };
-      uDensity: { value: number };
-      uPixelJitter: { value: number };
-      uEnableRipples: { value: number };
-      uRippleSpeed: { value: number };
-      uRippleThickness: { value: number };
-      uRippleIntensity: { value: number };
-      uEdgeFade: { value: number };
-    };
-    resizeObserver?: ResizeObserver;
-    raf?: number;
-    quad?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
-    timeOffset?: number;
-    composer?: EffectComposer;
-    touch?: ReturnType<typeof createTouchTexture>;
-    liquidEffect?: Effect;
-  } | null>(null);
-  const prevConfigRef = useRef<ReinitConfig | null>(null);
+  // Context lifetime. Only options baked into the WebGL context itself
+  // (antialias, alpha) force a rebuild; everything else is a uniform.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    speedRef.current = speed;
-    const needsReinitKeys: (keyof ReinitConfig)[] = ['antialias', 'liquid', 'noiseAmount'];
-    const cfg: ReinitConfig = { antialias, liquid, noiseAmount };
-    let mustReinit = false;
-    if (!threeRef.current) mustReinit = true;
-    else if (prevConfigRef.current) {
-      for (const k of needsReinitKeys)
-        if (prevConfigRef.current[k] !== cfg[k]) {
-          mustReinit = true;
-          break;
-        }
-    }
-    if (mustReinit) {
-      if (threeRef.current) {
-        const t = threeRef.current;
-        t.resizeObserver?.disconnect();
-        cancelAnimationFrame(t.raf!);
-        t.quad?.geometry.dispose();
-        t.material.dispose();
-        t.composer?.dispose();
-        t.renderer.dispose();
-        t.renderer.forceContextLoss();
-        if (t.renderer.domElement.parentElement === container) container.removeChild(t.renderer.domElement);
-        threeRef.current = null;
-      }
-      const canvas = document.createElement('canvas');
-      const renderer = new THREE.WebGLRenderer({
-        canvas,
-        antialias,
-        alpha: true,
-        powerPreference: 'high-performance'
-      });
-      renderer.domElement.style.width = '100%';
-      renderer.domElement.style.height = '100%';
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      container.appendChild(renderer.domElement);
-      if (transparent) renderer.setClearAlpha(0);
-      else renderer.setClearColor(0x000000, 1);
-      const uniforms = {
-        uResolution: { value: new THREE.Vector2(0, 0) },
-        uTime: { value: 0 },
-        uColor: { value: new THREE.Color(color) },
-        uClickPos: {
-          value: Array.from({ length: MAX_CLICKS }, () => new THREE.Vector2(-1, -1))
-        },
-        uClickTimes: { value: new Float32Array(MAX_CLICKS) },
-        uShapeType: { value: SHAPE_MAP[variant] ?? 0 },
-        uPixelSize: { value: pixelSize * renderer.getPixelRatio() },
-        uScale: { value: patternScale },
-        uDensity: { value: patternDensity },
-        uPixelJitter: { value: pixelSizeJitter },
-        uEnableRipples: { value: enableRipples ? 1 : 0 },
-        uRippleSpeed: { value: rippleSpeed },
-        uRippleThickness: { value: rippleThickness },
-        uRippleIntensity: { value: rippleIntensityScale },
-        uEdgeFade: { value: edgeFade }
-      };
-      const scene = new THREE.Scene();
-      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-      const material = new THREE.ShaderMaterial({
-        vertexShader: VERTEX_SRC,
-        fragmentShader: FRAGMENT_SRC,
-        uniforms,
-        transparent: true,
-        depthTest: false,
-        depthWrite: false,
-        glslVersion: THREE.GLSL3
-      });
 
-      const quadGeom = new THREE.PlaneGeometry(2, 2);
-      const quad = new THREE.Mesh(quadGeom, material);
-      scene.add(quad);
-      const clock = new THREE.Clock();
-      const setSize = () => {
-        const w = container.clientWidth || 1;
-        const h = container.clientHeight || 1;
-        renderer.setSize(w, h, false);
-        uniforms.uResolution.value.set(renderer.domElement.width, renderer.domElement.height);
-        if (threeRef.current?.composer)
-          threeRef.current.composer.setSize(renderer.domElement.width, renderer.domElement.height);
-        uniforms.uPixelSize.value = pixelSize * renderer.getPixelRatio();
-      };
-      setSize();
-      const ro = new ResizeObserver(setSize);
-      ro.observe(container);
-      const randomFloat = (): number => {
-        if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
-          const u32 = new Uint32Array(1);
-          window.crypto.getRandomValues(u32);
-          return u32[0] / 0xffffffff;
-        }
-        return Math.random();
-      };
-      const timeOffset = randomFloat() * 1000;
-      let composer: EffectComposer | undefined;
-      let touch: ReturnType<typeof createTouchTexture> | undefined;
-      let liquidEffect: Effect | undefined;
-      if (liquid) {
-        touch = createTouchTexture();
-        touch.radiusScale = liquidRadius;
-        composer = new EffectComposer(renderer);
-        const renderPass = new RenderPass(scene, camera);
-        liquidEffect = createLiquidEffect(touch.texture, {
-          strength: liquidStrength,
-          freq: liquidWobbleSpeed
-        });
-        const effectPass = new EffectPass(camera, liquidEffect);
-        effectPass.renderToScreen = true;
-        composer.addPass(renderPass);
-        composer.addPass(effectPass);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dprRef.current = dpr;
+    const renderer = new Renderer({
+      dpr,
+      antialias,
+      // An opaque context composites the dithered pixels onto black, matching
+      // the old non-transparent clear colour.
+      alpha: transparent,
+      premultipliedAlpha: true,
+      depth: false,
+      powerPreference: 'high-performance'
+    });
+    const gl = renderer.gl;
+    const canvas = gl.canvas as HTMLCanvasElement;
+    gl.clearColor(0, 0, 0, transparent ? 0 : 1);
+    container.appendChild(canvas);
+
+    // Uniform arrays must be plain Arrays: OGL only resolves `uClickPos[0]`
+    // against an Array value, not a Float32Array.
+    const clickPos: number[] = new Array(MAX_CLICKS * 2).fill(-1);
+    const clickTimes: number[] = new Array(MAX_CLICKS).fill(0);
+    const program = new Program(gl, {
+      vertex: VERTEX_SRC,
+      fragment: FRAGMENT_SRC,
+      depthTest: false,
+      depthWrite: false,
+      uniforms: {
+        uResolution: { value: [1, 1] },
+        uTime: { value: 0 },
+        uColor: { value: new Color(color) },
+        uClickPos: { value: clickPos },
+        uClickTimes: { value: clickTimes },
+        uShapeType: { value: 0 },
+        uPixelSize: { value: pixelSize * dpr },
+        uScale: { value: 0 },
+        uDensity: { value: 0 },
+        uPixelJitter: { value: 0 },
+        uEnableRipples: { value: 0 },
+        uRippleSpeed: { value: 0 },
+        uRippleThickness: { value: 0 },
+        uRippleIntensity: { value: 0 },
+        uEdgeFade: { value: 0 }
       }
-      if (noiseAmount > 0) {
-        if (!composer) {
-          composer = new EffectComposer(renderer);
-          composer.addPass(new RenderPass(scene, camera));
-        }
-        const noiseEffect = new Effect(
-          'NoiseEffect',
-          `uniform float uTime; uniform float uAmount; float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453);} void mainUv(inout vec2 uv){} void mainImage(const in vec4 inputColor,const in vec2 uv,out vec4 outputColor){ float n=hash(floor(uv*vec2(1920.0,1080.0))+floor(uTime*60.0)); float g=(n-0.5)*uAmount; outputColor=inputColor+vec4(vec3(g),0.0);} `,
-          {
-            uniforms: new Map<string, THREE.Uniform>([
-              ['uTime', new THREE.Uniform(0)],
-              ['uAmount', new THREE.Uniform(noiseAmount)]
-            ])
-          }
-        );
-        const noisePass = new EffectPass(camera, noiseEffect);
-        noisePass.renderToScreen = true;
-        if (composer && composer.passes.length > 0) {
-          composer.passes.forEach(p => {
-            const pass = p as { renderToScreen?: boolean };
-            pass.renderToScreen = false;
-          });
-        }
-        composer.addPass(noisePass);
-      }
-      if (composer) composer.setSize(renderer.domElement.width, renderer.domElement.height);
-      const mapToPixels = (e: PointerEvent) => {
-        const rect = renderer.domElement.getBoundingClientRect();
-        const scaleX = renderer.domElement.width / rect.width;
-        const scaleY = renderer.domElement.height / rect.height;
-        const fx = (e.clientX - rect.left) * scaleX;
-        const fy = (rect.height - (e.clientY - rect.top)) * scaleY;
-        return {
-          fx,
-          fy,
-          w: renderer.domElement.width,
-          h: renderer.domElement.height
-        };
-      };
-      const onPointerDown = (e: PointerEvent) => {
-        const { fx, fy } = mapToPixels(e);
-        const ix = threeRef.current?.clickIx ?? 0;
-        uniforms.uClickPos.value[ix].set(fx, fy);
-        uniforms.uClickTimes.value[ix] = uniforms.uTime.value;
-        if (threeRef.current) threeRef.current.clickIx = (ix + 1) % MAX_CLICKS;
-      };
-      const onPointerMove = (e: PointerEvent) => {
-        if (!touch) return;
-        const { fx, fy, w, h } = mapToPixels(e);
-        touch.addTouch({ x: fx / w, y: fy / h });
-      };
-      renderer.domElement.addEventListener('pointerdown', onPointerDown, {
-        passive: true
-      });
-      renderer.domElement.addEventListener('pointermove', onPointerMove, {
-        passive: true
-      });
-      let raf = 0;
-      const animate = () => {
-        if (autoPauseOffscreen && !visibilityRef.current.visible) {
-          raf = requestAnimationFrame(animate);
-          return;
-        }
-        uniforms.uTime.value = timeOffset + clock.getElapsedTime() * speedRef.current;
-        if (liquidEffect) {
-          const liqEffect = liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> };
-          const timeUniform = liqEffect.uniforms.get('uTime');
-          if (timeUniform) timeUniform.value = uniforms.uTime.value;
-        }
-        if (composer) {
-          if (touch) touch.update();
-          composer.passes.forEach(p => {
-            const pass = p as { effects?: Array<Effect & { uniforms: Map<string, THREE.Uniform> }> };
-            if (pass.effects) {
-              pass.effects.forEach(eff => {
-                const timeUniform = eff.uniforms?.get('uTime');
-                if (timeUniform) timeUniform.value = uniforms.uTime.value;
-              });
-            }
-          });
-          composer.render();
-        } else renderer.render(scene, camera);
-        raf = requestAnimationFrame(animate);
-      };
-      raf = requestAnimationFrame(animate);
-      threeRef.current = {
-        renderer,
-        scene,
-        camera,
-        material,
-        clock,
-        clickIx: 0,
-        uniforms,
-        resizeObserver: ro,
-        raf,
-        quad,
-        timeOffset,
-        composer,
-        touch,
-        liquidEffect
-      };
-    } else {
-      const t = threeRef.current!;
-      t.uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
-      t.uniforms.uPixelSize.value = pixelSize * t.renderer.getPixelRatio();
-      t.uniforms.uColor.value.set(color);
-      t.uniforms.uScale.value = patternScale;
-      t.uniforms.uDensity.value = patternDensity;
-      t.uniforms.uPixelJitter.value = pixelSizeJitter;
-      t.uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
-      t.uniforms.uRippleIntensity.value = rippleIntensityScale;
-      t.uniforms.uRippleThickness.value = rippleThickness;
-      t.uniforms.uRippleSpeed.value = rippleSpeed;
-      t.uniforms.uEdgeFade.value = edgeFade;
-      if (transparent) t.renderer.setClearAlpha(0);
-      else t.renderer.setClearColor(0x000000, 1);
-      if (t.liquidEffect) {
-        const liqEffect = t.liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> };
-        const uStrength = liqEffect.uniforms.get('uStrength');
-        if (uStrength) uStrength.value = liquidStrength;
-        const uFreq = liqEffect.uniforms.get('uFreq');
-        if (uFreq) uFreq.value = liquidWobbleSpeed;
-      }
-      if (t.touch) t.touch.radiusScale = liquidRadius;
-    }
-    prevConfigRef.current = cfg;
-    return () => {
-      if (threeRef.current && mustReinit) return;
-      if (!threeRef.current) return;
-      const t = threeRef.current;
-      t.resizeObserver?.disconnect();
-      cancelAnimationFrame(t.raf!);
-      t.quad?.geometry.dispose();
-      t.material.dispose();
-      t.composer?.dispose();
-      t.renderer.dispose();
-      t.renderer.forceContextLoss();
-      if (t.renderer.domElement.parentElement === container) container.removeChild(t.renderer.domElement);
-      threeRef.current = null;
+    });
+    programRef.current = program;
+    const u = program.uniforms;
+    // One oversized triangle covers the viewport with no diagonal seam.
+    const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
+
+    const setSize = () => {
+      renderer.setSize(container.clientWidth || 1, container.clientHeight || 1);
+      u.uResolution.value = [gl.canvas.width, gl.canvas.height];
+      u.uPixelSize.value = pixelSizeRef.current * dpr;
     };
+    setSize();
+    const ro = new ResizeObserver(setSize);
+    ro.observe(container);
+
+    const timeOffset = Math.random() * 1000;
+    const start = performance.now();
+    let clickIx = 0;
+
+    const onPointerDown = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const fx = (e.clientX - rect.left) * (gl.canvas.width / rect.width);
+      const fy = (rect.height - (e.clientY - rect.top)) * (gl.canvas.height / rect.height);
+      clickPos[clickIx * 2] = fx;
+      clickPos[clickIx * 2 + 1] = fy;
+      clickTimes[clickIx] = u.uTime.value;
+      clickIx = (clickIx + 1) % MAX_CLICKS;
+    };
+    canvas.addEventListener('pointerdown', onPointerDown, { passive: true });
+
+    // The loop stops outright while the hero is off-screen or the tab is
+    // hidden, instead of spinning a rAF that renders nothing.
+    let raf = 0;
+    let onScreen = true;
+    const render = () => {
+      u.uTime.value = timeOffset + ((performance.now() - start) / 1000) * speedRef.current;
+      renderer.render({ scene: mesh });
+      raf = requestAnimationFrame(render);
+    };
+    const sync = () => {
+      const run = !document.hidden && (onScreen || !autoPauseRef.current);
+      if (run && !raf) raf = requestAnimationFrame(render);
+      else if (!run && raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      sync();
+    });
+    io.observe(container);
+    document.addEventListener('visibilitychange', sync);
+    sync();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      ro.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      programRef.current = null;
+      program.remove();
+      mesh.geometry.remove();
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      if (canvas.parentElement === container) container.removeChild(canvas);
+    };
+    // `color` and `pixelSize` seed the first frame; the effect below keeps
+    // them current, so they must not rebuild the context.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [antialias, transparent]);
+
+  // Everything that is just a uniform or a ref: update in place.
+  useEffect(() => {
+    speedRef.current = speed;
+    pixelSizeRef.current = pixelSize;
+    autoPauseRef.current = autoPauseOffscreen;
+    const program = programRef.current;
+    if (!program) return;
+    const u = program.uniforms;
+    u.uShapeType.value = SHAPE_MAP[variant] ?? 0;
+    u.uPixelSize.value = pixelSize * dprRef.current;
+    u.uColor.value = new Color(color);
+    u.uScale.value = patternScale;
+    u.uDensity.value = patternDensity;
+    u.uPixelJitter.value = pixelSizeJitter;
+    u.uEnableRipples.value = enableRipples ? 1 : 0;
+    u.uRippleIntensity.value = rippleIntensityScale;
+    u.uRippleThickness.value = rippleThickness;
+    u.uRippleSpeed.value = rippleSpeed;
+    u.uEdgeFade.value = edgeFade;
   }, [
     antialias,
-    liquid,
-    noiseAmount,
+    transparent,
+    variant,
     pixelSize,
+    color,
     patternScale,
     patternDensity,
+    pixelSizeJitter,
     enableRipples,
     rippleIntensityScale,
     rippleThickness,
     rippleSpeed,
-    pixelSizeJitter,
     edgeFade,
-    transparent,
-    liquidStrength,
-    liquidRadius,
-    liquidWobbleSpeed,
-    autoPauseOffscreen,
-    variant,
-    color,
-    speed
+    speed,
+    autoPauseOffscreen
   ]);
 
   return (

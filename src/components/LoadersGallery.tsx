@@ -445,7 +445,7 @@ export default function LoadersGallery() {
         </div>
       </header>
 
-      <main className="grid" ref={gridRef} />
+      <main className="loader-grid" ref={gridRef} />
 
       <nav className="pagination">
         <button className="page-btn" ref={prevBtnRef} aria-label="Previous page">

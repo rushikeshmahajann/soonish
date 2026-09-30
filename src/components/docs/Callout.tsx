@@ -2,24 +2,29 @@ import type { ReactNode } from "react";
 
 type CalloutType = "note" | "warning" | "tip" | "important";
 
-const CONFIG: Record<CalloutType, { icon: string; label: string; border: string; bg: string; text: string }> = {
-  note:      { icon: "ℹ", label: "Note",      border: "#8a8a8a", bg: "rgba(255,255,255,0.04)", text: "#d8d8d8" },
-  tip:       { icon: "✦", label: "Good to know", border: "#a9a9a9", bg: "rgba(255,255,255,0.04)", text: "#e0e0e0" },
-  warning:   { icon: "⚠", label: "Warning",   border: "#b8aa92", bg: "rgba(255,255,255,0.04)", text: "#ded3c0" },
-  important: { icon: "★", label: "Important", border: "#9f9f9f", bg: "rgba(255,255,255,0.04)", text: "#d0d0d0" },
+const LABEL: Record<CalloutType, string> = {
+  note: "Note",
+  tip: "Good to know",
+  warning: "Warning",
+  important: "Important",
 };
 
+/**
+ * An aside on the tile surface, marked by a short accent bar. The bar uses
+ * --brand, so callouts follow the colour picked in the accent menu like the
+ * loaders do; warnings keep a fixed amber so they never read as decoration.
+ */
 export function Callout({ type = "note", children }: { type?: CalloutType; children: ReactNode }) {
-  const c = CONFIG[type];
   return (
-    <div
-      className="flex gap-3 rounded-lg px-4 py-3.5 my-5 text-sm leading-relaxed"
-      style={{ background: c.bg, borderLeft: `3px solid ${c.border}` }}
-    >
-      <span className="shrink-0 mt-px font-semibold" style={{ color: c.border }}>{c.icon}</span>
-      <div>
-        <span className="font-semibold mr-1.5" style={{ color: c.text }}>{c.label}:</span>
-        <span style={{ color: "#a1a1aa" }}>{children}</span>
+    <div className="my-7 flex gap-4 rounded-md px-5 py-4 text-sm leading-7">
+      <span
+        aria-hidden="true"
+        className="mt-1.5 h-4 w-0.5 shrink-0 rounded-full"
+        style={{ background: type === "warning" ? "#edcfaa" : "var(--brand)" }}
+      />
+      <div className="text-white/50">
+        <span className="mr-1.5 font-mori font-medium text-white/85">{LABEL[type]}:</span>
+        {children}
       </div>
     </div>
   );

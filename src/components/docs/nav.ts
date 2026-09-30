@@ -19,7 +19,6 @@ export const NAV: NavSection[] = [
   {
     title: 'Reference',
     items: [
-      { title: 'All Loaders',   href: '/docs/loaders' },
       { title: 'API Reference', href: '/docs/api-reference' },
     ],
   },

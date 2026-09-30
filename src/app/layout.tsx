@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Pixelify_Sans } from "next/font/google";
 import localFont from "next/font/local";
+// Self-hosted by the `geist` package rather than fetched from Google, so it
+// needs no next/font call of its own — it ships a ready-made NextFontWithVariable
+// bound to --font-geist-mono. The variable face is ~30kb; geist/font/mono-non-variable
+// is the ~300kb fallback for browsers without variable-font support.
+import { GeistMono } from "geist/font/mono";
 import GradualBlur from "@/components/GradualBlur";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+import { ACCENT_BOOT_SCRIPT } from "@/lib/accents";
+import { registryOrigin } from "@/lib/registry";
+import { TOTAL } from "./loaders/groups";
 
+// Inter is the sans face and also backs --font-sans, so the `font-sans`
+// utility resolves to it rather than to a second, never-rendered sans.
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
+  variable: "--font-sans",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -22,26 +34,29 @@ const pixelifySans = Pixelify_Sans({
   variable: "--font-pixelify-sans",
 });
 
-// PP Mori ships only three weights (200 / 400 / 600), each with an italic.
-// Asking for 300, 500, 700 etc. in CSS makes the browser synthesize them from
-// the nearest real face rather than loading a dedicated file.
+// Only PP Mori Regular is loaded — it is the only face the site renders
+// (font-medium falls back to it). The Extralight, SemiBold and italic cuts
+// were preloaded on every page without ever being used; if a heavier weight
+// is needed later, re-add that one file rather than the whole family.
 const ppMori = localFont({
   variable: "--font-pp-mori",
   display: "swap",
-  src: [
-    { path: "./fonts/PPMori-Extralight.otf", weight: "200", style: "normal" },
-    { path: "./fonts/PPMori-ExtralightItalic.otf", weight: "200", style: "italic" },
-    { path: "./fonts/PPMori-Regular.otf", weight: "400", style: "normal" },
-    { path: "./fonts/PPMori-RegularItalic.otf", weight: "400", style: "italic" },
-    { path: "./fonts/PPMori-SemiBold.otf", weight: "600", style: "normal" },
-    { path: "./fonts/PPMori-SemiBoldItalic.otf", weight: "600", style: "italic" },
-  ],
+  src: [{ path: "./fonts/PPMori-Regular.otf", weight: "400", style: "normal" }],
 });
 
+const DESCRIPTION = `${TOTAL} loading animations for React, each on a 5×5 grid of dots and animated with plain CSS. Install with the shadcn CLI — the code is yours.`;
+
 export const metadata: Metadata = {
-  title: "Pixel Loaders — 5×5 Matrix Animations",
-  description:
-    "A library of 68 compact 5×5 matrix loading animations. Pure CSS with muted pastel colors.",
+  // Absolute URLs for the OpenGraph image etc. Same origin the registry uses.
+  metadataBase: new URL(registryOrigin()),
+  title: {
+    default: "soonish — 5×5 pixel loaders for React",
+    // Child routes set just their own name: "Installation · soonish".
+    template: "%s · soonish",
+  },
+  description: DESCRIPTION,
+  openGraph: { title: "soonish", description: DESCRIPTION, type: "website", siteName: "soonish" },
+  twitter: { card: "summary_large_image", title: "soonish", description: DESCRIPTION },
 };
 
 export default function RootLayout({
@@ -56,9 +71,16 @@ export default function RootLayout({
     // the tree still surface.
     <html
       lang="en"
-      className={`${inter.className} ${jetbrainsMono.variable} ${pixelifySans.variable} ${ppMori.variable}`}
+      className={cn(inter.className, inter.variable, GeistMono.variable, jetbrainsMono.variable, pixelifySans.variable, ppMori.variable, "font-sans")}
       suppressHydrationWarning
     >
+      <head>
+        {/* Applies a saved accent colour before the body paints — a plain
+            synchronous script, since next/script's strategies all run too late
+            to prevent a flash of the default yellow. It sets inline styles on
+            <html>, which the suppressHydrationWarning above already covers. */}
+        <script dangerouslySetInnerHTML={{ __html: ACCENT_BOOT_SCRIPT }} />
+      </head>
       <body suppressHydrationWarning>
         {children}
         {/* Site-wide bottom fade. target="page" makes it position:fixed, so it
