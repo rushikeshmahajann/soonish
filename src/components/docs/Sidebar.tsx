@@ -181,7 +181,7 @@ export function DocsTree({ onNavigate }: { onNavigate?: () => void }) {
           <path
             d={PATH}
             fill="none"
-            stroke="rgba(255,255,255,0.12)"
+            stroke="oklch(1 0 0 / 0.12)"
             strokeWidth={1.4}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -202,7 +202,7 @@ export function DocsTree({ onNavigate }: { onNavigate?: () => void }) {
               cx={colX(r.depth)}
               cy={rowY(r.i)}
               r={DOT_R}
-              fill={r.depth === 1 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.25)"}
+              fill={r.depth === 1 ? "oklch(1 0 0 / 0.55)" : "oklch(1 0 0 / 0.25)"}
             />
           ))}
           <circle

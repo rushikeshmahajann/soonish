@@ -20,7 +20,7 @@ export function Callout({ type = "note", children }: { type?: CalloutType; child
       <span
         aria-hidden="true"
         className="mt-1.5 h-4 w-0.5 shrink-0 rounded-full"
-        style={{ background: type === "warning" ? "#edcfaa" : "var(--brand)" }}
+        style={{ background: type === "warning" ? "oklch(0.871 0.059 72.741)" : "var(--brand)" }}
       />
       <div className="text-white/50">
         <span className="mr-1.5 font-mori font-medium text-white/85">{LABEL[type]}:</span>

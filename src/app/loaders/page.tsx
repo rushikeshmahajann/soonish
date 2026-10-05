@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 // the body lives in a client component.
 export default function LoadersPage() {
   return (
-    <main className="min-h-screen w-full px-6 py-12 md:px-10" style={{ background: "var(--bg)", color: "#fafafa" }}>
+    <main className="min-h-screen w-full px-6 py-12 md:px-10" style={{ background: "var(--bg)", color: "oklch(0.985 0 0)" }}>
       <div className="mx-auto max-w-screen-xl">
         <LoaderExplorer />
       </div>

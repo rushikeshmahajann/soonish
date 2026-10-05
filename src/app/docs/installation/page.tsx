@@ -56,7 +56,7 @@ export default function InstallationPage() {
         lang="tsx"
         code={`import { ThinkingLoader } from '@/components/soonish/loaders/thinking';
 
-<ThinkingLoader color="#CDC868" />`}
+<ThinkingLoader color="oklch(0.817 0.119 106.075)" />`}
       />
       <P>
         Find the one you want on the <A href="/">home page</A>. Hover a loader to copy its command.

@@ -9,7 +9,15 @@
 
 import { Color, Mesh, Program, Renderer, Triangle } from 'ogl';
 import React, { useEffect, useRef } from 'react';
+import { parseOklch } from '@/lib/color';
 import './PixelBlast.css';
+
+// OGL's Color parses hex and a few names, not oklch(). Site colours are all
+// oklch, so resolve them to channels here and let OGL handle anything else.
+const toColor = (value: string) => {
+  const rgb = parseOklch(value);
+  return rgb ? new Color([rgb[0], rgb[1], rgb[2]]) : new Color(value);
+};
 
 type PixelBlastVariant = 'square' | 'circle' | 'triangle' | 'diamond';
 
@@ -219,7 +227,7 @@ void main(){
 const PixelBlast: React.FC<PixelBlastProps> = ({
   variant = 'square',
   pixelSize = 3,
-  color = '#B497CF',
+  color = 'oklch(0.722 0.086 307.923)',
   className,
   style,
   antialias = true,
@@ -279,7 +287,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uniforms: {
         uResolution: { value: [1, 1] },
         uTime: { value: 0 },
-        uColor: { value: new Color(color) },
+        uColor: { value: toColor(color) },
         uClickPos: { value: clickPos },
         uClickTimes: { value: clickTimes },
         uShapeType: { value: 0 },
@@ -375,7 +383,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     const u = program.uniforms;
     u.uShapeType.value = SHAPE_MAP[variant] ?? 0;
     u.uPixelSize.value = pixelSize * dprRef.current;
-    u.uColor.value = new Color(color);
+    u.uColor.value = toColor(color);
     u.uScale.value = patternScale;
     u.uDensity.value = patternDensity;
     u.uPixelJitter.value = pixelSizeJitter;

@@ -41,7 +41,7 @@ The code lands in `components/soonish` and is yours to edit. No package to keep 
 import { Loader } from "@/components/soonish";
 
 export default function Loading() {
-  return <Loader name="thinking" color="#CDC868" size={40} dotSize={6} />;
+  return <Loader name="thinking" color="oklch(0.817 0.119 106.075)" size={40} dotSize={6} />;
 }
 ```
 

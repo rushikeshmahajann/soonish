@@ -134,7 +134,7 @@ export function AccentMenu() {
                       <span
                         aria-hidden="true"
                         className={cn(
-                          "relative size-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)] transition-transform duration-150",
+                          "relative size-5 shadow-[inset_0_0_0_1px_oklch(1_0_0/0.18)] transition-transform duration-150",
                           selected ? "scale-100" : "scale-90 hover:scale-100",
                         )}
                         style={{
@@ -162,7 +162,7 @@ export function AccentMenu() {
           >
             <motion.span
               aria-hidden="true"
-              className="size-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
+              className="size-5 shadow-[inset_0_0_0_1px_oklch(1_0_0/0.18)]"
               style={{ borderRadius: SWATCH_RADIUS, background: SPECTRUM }}
               // A quarter turn of the wheel as it opens — a small cue that the
               // button changed state, on top of the surface growing.

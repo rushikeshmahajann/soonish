@@ -32,10 +32,10 @@ export default function CustomizationPage() {
 <Loader name="sweep" color="var(--brand)" />
 
 // Custom colors
-<Loader name="sweep" color="#edcfaa" />
-<Loader name="ripple" color="#c9d0f4" />
-<Loader name="diagonal" color="#d7e9bd" />
-<Loader name="vortex" color="#edc8cf" />`}
+<Loader name="sweep" color="oklch(0.871 0.059 72.741)" />
+<Loader name="ripple" color="oklch(0.864 0.05 276.62)" />
+<Loader name="diagonal" color="oklch(0.909 0.061 125.704)" />
+<Loader name="vortex" color="oklch(0.866 0.043 5.208)" />`}
       >
         {/* Previews run at the landing preview's size (40px, 6px dots) — the
             prop on show here is colour, so size is free to be legible. */}
@@ -45,10 +45,10 @@ export default function CustomizationPage() {
           dotSize={6}
           loaders={[
             { name: "sweep", label: "var(--brand)", color: "var(--brand)" },
-            { name: "sweep", label: "#edcfaa", color: "#edcfaa" },
-            { name: "ripple", label: "#c9d0f4", color: "#c9d0f4" },
-            { name: "diagonal", label: "#d7e9bd", color: "#d7e9bd" },
-            { name: "vortex", label: "#edc8cf", color: "#edc8cf" },
+            { name: "sweep", label: "oklch(0.871 0.059 72.741)", color: "oklch(0.871 0.059 72.741)" },
+            { name: "ripple", label: "oklch(0.864 0.05 276.62)", color: "oklch(0.864 0.05 276.62)" },
+            { name: "diagonal", label: "oklch(0.909 0.061 125.704)", color: "oklch(0.909 0.061 125.704)" },
+            { name: "vortex", label: "oklch(0.866 0.043 5.208)", color: "oklch(0.866 0.043 5.208)" },
           ]}
         />
       </Example>
@@ -122,22 +122,22 @@ export default function CustomizationPage() {
         code={`import { Loader } from '@/components/soonish';
 
 // Subtle background indicator
-<Loader name="breathe" color="#d8d8d8" size={20} speed={0.6} />
+<Loader name="breathe" color="oklch(0.882 0 0)" size={20} speed={0.6} />
 
 // Bold AI thinking indicator
-<Loader name="thinking" color="#c9d0f4" size={32} dotSize={4} speed={0.9} />
+<Loader name="thinking" color="oklch(0.864 0.05 276.62)" size={32} dotSize={4} speed={0.9} />
 
 // Inline loading spinner
-<Loader name="ripple" color="#d7e9bd" size={18} />
+<Loader name="ripple" color="oklch(0.909 0.061 125.704)" size={18} />
 
 // Large hero animation
 <Loader name="plasma" size={48} dotSize={6} speed={0.7} />`}
       >
         {/* Real sizes, as written in the code — each combination is the point. */}
         <div className="grid grid-cols-1 items-center gap-y-4 sm:grid-cols-2">
-          <LiveLoader bare name="breathe" color="#d8d8d8" size={20} speed={0.6} label="subtle" />
-          <LiveLoader bare name="thinking" color="#c9d0f4" size={32} dotSize={4} speed={0.9} label="ai thinking" />
-          <LiveLoader bare name="ripple" color="#d7e9bd" size={18} label="inline spinner" />
+          <LiveLoader bare name="breathe" color="oklch(0.882 0 0)" size={20} speed={0.6} label="subtle" />
+          <LiveLoader bare name="thinking" color="oklch(0.864 0.05 276.62)" size={32} dotSize={4} speed={0.9} label="ai thinking" />
+          <LiveLoader bare name="ripple" color="oklch(0.909 0.061 125.704)" size={18} label="inline spinner" />
           <LiveLoader bare name="plasma" size={48} dotSize={6} speed={0.7} label="hero" />
         </div>
       </Example>

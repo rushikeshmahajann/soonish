@@ -107,7 +107,7 @@ export function HoverPhotoLink({
                       // is already in the cache the moment it mounts.
                       unoptimized
                       loading="eager"
-                      className="rounded-lg shadow-[0_14px_9px_rgba(0,0,0,0.1),0_6px_6px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.3)] ring-1 ring-white/10"
+                      className="rounded-lg shadow-[0_14px_9px_oklch(0_0_0/0.1),0_6px_6px_oklch(0_0_0/0.2),0_2px_4px_oklch(0_0_0/0.3)] ring-1 ring-white/10"
                     />
                   </motion.div>
                 </motion.div>

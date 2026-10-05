@@ -47,7 +47,7 @@ export default function ApiReferencePage() {
 
 <Loader
   name="ripple"
-  color="#c9d0f4"
+  color="oklch(0.864 0.05 276.62)"
   size={24}
   dotSize={3}
   speed={0.8}

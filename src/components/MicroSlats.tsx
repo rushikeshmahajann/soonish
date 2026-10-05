@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { Renderer, Program, Mesh, Triangle, RenderTarget, Texture } from 'ogl';
+import { parseOklch } from '@/lib/color';
 
 import './MicroSlats.css';
 
@@ -144,10 +145,14 @@ const PIXEL_BUDGET = 4.5e6;
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 const parseColor = (value: string, fallback: Rgba): Rgba => {
+  // Site colours are oklch(); canvas serialisation of those varies by
+  // browser, so parse them directly and keep the canvas for anything else.
+  const oklch = parseOklch(value);
+  if (oklch) return oklch;
   try {
     const ctx = document.createElement('canvas').getContext('2d');
     if (!ctx) return fallback;
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = 'oklch(0 0 0)';
     ctx.fillStyle = value;
     const resolved = ctx.fillStyle;
     if (resolved.startsWith('#')) {
@@ -434,9 +439,9 @@ void main() {
 
 const MicroSlats = ({
   preset = 'swell',
-  color = '#A855F7',
-  glintColor = '#ffffff',
-  backgroundColor = '#000000',
+  color = 'oklch(0.627 0.233 303.9)',
+  glintColor = 'oklch(1 0 0)',
+  backgroundColor = 'oklch(0 0 0)',
   slatWidth = 10,
   slatHeight = 25,
   gap = 3,

@@ -62,7 +62,7 @@ export function LazyLoader(props: LoaderProps) {
       ) : (
         <div
           aria-hidden="true"
-          style={{ width: matrixSpan, height: matrixSpan, borderRadius: 4, background: "rgba(255,255,255,0.04)" }}
+          style={{ width: matrixSpan, height: matrixSpan, borderRadius: 4, background: "oklch(1 0 0 / 0.04)" }}
         />
       )}
     </div>

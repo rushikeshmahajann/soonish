@@ -22,15 +22,21 @@
      Mono. JetBrains Mono stays loaded because CodeBlock.tsx still names
      --font-jetbrains-mono directly; the two are not interchangeable here. */
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Tailwind ships --color-white/--color-black as #fff/#000. Every
+     text-white/N, bg-white/N and bg-black/N utility derives from these, so
+     redefining them keeps the whole product on oklch values. */
+  --color-white: oklch(1 0 0);
+  --color-black: oklch(0 0 0);
 }
 
 .custom-button {
   position: relative; /* anchors the ::before ring */
-  color: rgba(255, 255, 255, 0.83);
+  color: oklch(1 0 0 / 0.83);
 
   /* Negative Y — pushes the text "into" the surface. On a dark button lit from
      above, an engraved shadow reads correct; a positive Y would emboss. */
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+  text-shadow: 0 -1px 0 oklch(0 0 0 / 0.5);
 
   /* The ellipse is anchored OUTSIDE the button (-20px), so the highlight falls
      across the top-left shoulder instead of sitting centred. That off-centre
@@ -38,23 +44,23 @@
   background:
     radial-gradient(
       ellipse at -20px top,
-      rgba(255, 255, 255, 0.05),
-      rgba(255, 255, 255, 0)
+      oklch(1 0 0 / 0.05),
+      oklch(1 0 0 / 0)
     ),
-    var(--background-light-50, rgba(51, 51, 51, 0.5));
+    var(--background-light-50, oklch(0.321 0 0 / 0.5));
 
   /* One declaration, comma-separated — separate `box-shadow` lines would
      override each other and only the last would survive the cascade.
      Layers 1-2 are the rims; 3-7 are a shadow ladder where each step gets
      tighter AND more opaque, approximating contact occlusion. */
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 0 0 1px rgba(0, 0, 0, 0.45),
-    0 40px 11px rgba(0, 0, 0, 0.01),
-    0 26px 10px rgba(0, 0, 0, 0.025),
-    0 14px 9px rgba(0, 0, 0, 0.1),
-    0 6px 6px rgba(0, 0, 0, 0.15),
-    0 2px 4px rgba(0, 0, 0, 0.25);
+    inset 0 0 0 1px oklch(1 0 0 / 0.04),
+    0 0 0 1px oklch(0 0 0 / 0.45),
+    0 40px 11px oklch(0 0 0 / 0.01),
+    0 26px 10px oklch(0 0 0 / 0.025),
+    0 14px 9px oklch(0 0 0 / 0.1),
+    0 6px 6px oklch(0 0 0 / 0.15),
+    0 2px 4px oklch(0 0 0 / 0.25);
 
   /* Release curve: slow and eased-out, so the button settles back up rather
      than snapping. The press overrides this with a much shorter duration —
@@ -90,10 +96,10 @@
      and the sides fall dark. A single top-to-bottom fade reads flat. */
   background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.3) 0%,
-      rgba(0, 0, 0, 0.48) 41%,
-      rgba(0, 0, 0, 0.26) 75%,
-      rgba(255, 255, 255, 0.1) 100%
+      oklch(1 0 0 / 0.3) 0%,
+      oklch(0 0 0 / 0.48) 41%,
+      oklch(0 0 0 / 0.26) 75%,
+      oklch(1 0 0 / 0.1) 100%
     )
     border-box;
 
@@ -102,12 +108,12 @@
   mix-blend-mode: overlay;
 
   -webkit-mask:
-    linear-gradient(#000 0 0) padding-box,
-    linear-gradient(#000 0 0);
+    linear-gradient(oklch(0 0 0) 0 0) padding-box,
+    linear-gradient(oklch(0 0 0) 0 0);
   -webkit-mask-composite: xor;
   mask:
-    linear-gradient(#000 0 0) padding-box,
-    linear-gradient(#000 0 0);
+    linear-gradient(oklch(0 0 0) 0 0) padding-box,
+    linear-gradient(oklch(0 0 0) 0 0);
   mask-composite: exclude;
 }
 
@@ -129,13 +135,13 @@ button.custom-button:active {
      while the near layers get darker — the surface is closer, so contact
      occlusion tightens. Moving the button without this reads as a slide. */
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 0 0 1px rgba(0, 0, 0, 0.45),
-    0 20px 10px rgba(0, 0, 0, 0.01),
-    0 12px 10px rgba(0, 0, 0, 0.05),
-    0 6px 9px rgba(0, 0, 0, 0.17),
-    0 2px 4px rgba(0, 0, 0, 0.29),
-    0 1px 2px rgba(0, 0, 0, 0.33);
+    inset 0 0 0 1px oklch(1 0 0 / 0.04),
+    0 0 0 1px oklch(0 0 0 / 0.45),
+    0 20px 10px oklch(0 0 0 / 0.01),
+    0 12px 10px oklch(0 0 0 / 0.05),
+    0 6px 9px oklch(0 0 0 / 0.17),
+    0 2px 4px oklch(0 0 0 / 0.29),
+    0 1px 2px oklch(0 0 0 / 0.33);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -151,25 +157,25 @@ button.custom-button:active {
 :root {
   /* Page background for every route. Change it here only — all page-level
      surfaces reference this token rather than hardcoding a hex. */
-  --bg: #0a0a0a;
+  --bg: oklch(0.145 0 0);
 
   /* Landing-page accent. These are the yellow defaults so the server-rendered
      page is themed before JS runs; AccentProvider overwrites them on <html>
      when a swatch is picked. Palette lives in src/lib/accents.ts. */
-  --brand: #cdc868;
-  --brand-from: #fff3b7;
-  --brand-to: #ffe748;
-  --brand-dot-light: #fffff0;
-  --brand-dot: #f5e97a;
-  --brand-dot-dark: #c8b820;
+  --brand: oklch(0.817 0.119 106.075);
+  --brand-from: oklch(0.959 0.077 98.126);
+  --brand-to: oklch(0.921 0.17 100.422);
+  --brand-dot-light: oklch(0.996 0.02 106.75);
+  --brand-dot: oklch(0.921 0.133 103.122);
+  --brand-dot-dark: oklch(0.772 0.155 102.784);
   --card: oklch(1 0 0);
   --border: oklch(0.922 0 0);
-  --text: #f1f1f1;
+  --text: oklch(0.958 0 0);
 
   /* Surface tint used by .custom-button. Defined here rather than in @theme
      because Tailwind tree-shakes theme vars it can't see referenced, and this
      one is only consumed from plain CSS. */
-  --background-light-50: rgba(51, 51, 51, 0.5);
+  --background-light-50: oklch(0.321 0 0 / 0.5);
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -370,14 +376,14 @@ body {
    Monochrome by strength — keywords and names bright, punctuation and comments
    dim — with strings in the page accent, so code follows the accent menu. */
 .code-block {
-  --sh-identifier: rgb(255 255 255 / 0.72);
-  --sh-keyword: rgb(255 255 255 / 0.92);
-  --sh-class: rgb(255 255 255 / 0.95);
-  --sh-entity: rgb(255 255 255 / 0.95);
-  --sh-property: rgb(255 255 255 / 0.62);
-  --sh-jsxliterals: rgb(255 255 255 / 0.72);
-  --sh-sign: rgb(255 255 255 / 0.38);
-  --sh-comment: rgb(255 255 255 / 0.3);
+  --sh-identifier: oklch(1 0 0 / 0.72);
+  --sh-keyword: oklch(1 0 0 / 0.92);
+  --sh-class: oklch(1 0 0 / 0.95);
+  --sh-entity: oklch(1 0 0 / 0.95);
+  --sh-property: oklch(1 0 0 / 0.62);
+  --sh-jsxliterals: oklch(1 0 0 / 0.72);
+  --sh-sign: oklch(1 0 0 / 0.38);
+  --sh-comment: oklch(1 0 0 / 0.3);
   --sh-string: var(--brand);
 }
 .code-block .sh__token--comment {

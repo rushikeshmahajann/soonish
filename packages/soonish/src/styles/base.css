@@ -42,7 +42,7 @@
   position: absolute;
   inset: 0;
   border-radius: 1px;
-  background: var(--loader-color, #bfe7df);
+  background: var(--loader-color, oklch(0.897 0.043 181.815));
   opacity: 0.16;
 }
 
@@ -50,7 +50,7 @@
   position: absolute;
   inset: 0;
   border-radius: 1px;
-  background: var(--loader-color, #bfe7df);
+  background: var(--loader-color, oklch(0.897 0.043 181.815));
   opacity: 0.16;
   box-shadow: none;
   /* transform-origin matters: the scale-based loaders grow from the cell

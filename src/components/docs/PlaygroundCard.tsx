@@ -8,9 +8,11 @@ import { useAccent } from "@/components/AccentProvider";
 // and it keeps the shader out of the page's initial bundle.
 const MicroSlats = dynamic(() => import("@/components/MicroSlats"), { ssr: false });
 
-// The tile surface (bg-white/2) over the page's #0a0a0a, as a solid colour —
-// the shader paints its own background, so it has to match the other cards.
-const TILE_BG = "#0f0f0f";
+// The tile surface (bg-white/2) over the page's oklch(0.145 0 0), as a solid
+// colour — the shader paints its own background, so it has to match the
+// other cards. The scrim below needs it with alpha.
+const TILE_BG = "oklch(0.168 0 0)";
+const tileWithAlpha = (alpha: number) => TILE_BG.replace(")", ` / ${alpha})`);
 
 /**
  * "Playground — coming soon", a full-width feature card on a live MicroSlats
@@ -40,7 +42,7 @@ export function PlaygroundCard() {
           <MicroSlats
             preset="swell"
             color={accent.accent}
-            glintColor="#ffffff"
+            glintColor="oklch(1 0 0)"
             backgroundColor={TILE_BG}
             // Square slats sized like the loaders' own dots — 6px with a 3px
             // gap and a 1px corner (0.33 of the half-size) — so the card reads
@@ -64,7 +66,7 @@ export function PlaygroundCard() {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10"
-        style={{ background: `linear-gradient(90deg, ${TILE_BG} 0%, ${TILE_BG}f2 52%, ${TILE_BG}00 90%)` }}
+        style={{ background: `linear-gradient(90deg, ${TILE_BG} 0%, ${tileWithAlpha(0.95)} 52%, ${tileWithAlpha(0)} 90%)` }}
       />
 
       <div className="pointer-events-none flex min-h-56 max-w-md flex-col justify-end gap-2 p-6">

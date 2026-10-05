@@ -13,14 +13,14 @@
 //            radial gradient of each glass bead (was #FFFFF0 / #F5E97A /
 //            #C8B820). Body doubles as the glow, edge as the drop shadow.
 export const ACCENTS = [
-  { id: "yellow", label: "Yellow", accent: "#CDC868", from: "#FFF3B7", to: "#FFE748", dot: ["#FFFFF0", "#F5E97A", "#C8B820"] },
-  { id: "mint", label: "Mint", accent: "#71DCB0", from: "#C5FFDA", to: "#6FFFB8", dot: ["#F2FFF9", "#8AFFC8", "#39D396"] },
-  { id: "cyan", label: "Cyan", accent: "#50D9E8", from: "#B7FEFF", to: "#1CF6FF", dot: ["#F0FDFE", "#72F5FF", "#00CEDA"] },
-  { id: "blue", label: "Blue", accent: "#88C2FF", from: "#D4EBFE", to: "#A1D4FF", dot: ["#F7FAFE", "#B3DAFF", "#64B7FF"] },
-  { id: "violet", label: "Violet", accent: "#C4B2FE", from: "#E4E3FE", to: "#C8C1FF", dot: ["#FBFAFF", "#D5CDFF", "#B29FFF"] },
-  { id: "pink", label: "Pink", accent: "#FAA4D5", from: "#FFDCF4", to: "#FFB1E6", dot: ["#FEFAFC", "#FFBAE4", "#F68BD1"] },
-  { id: "coral", label: "Coral", accent: "#FFA39C", from: "#FFD9DA", to: "#FFB7B6", dot: ["#FEF8F8", "#FFC4C1", "#FF8786"] },
-  { id: "orange", label: "Orange", accent: "#FCB172", from: "#FFE1D0", to: "#FFBA8C", dot: ["#FEFAF7", "#FFC69E", "#FD9846"] },
+  { id: "yellow", label: "Yellow", accent: "oklch(0.817 0.119 106.075)", from: "oklch(0.959 0.077 98.126)", to: "oklch(0.921 0.17 100.422)", dot: ["oklch(0.996 0.02 106.75)", "oklch(0.921 0.133 103.122)", "oklch(0.772 0.155 102.784)"] },
+  { id: "mint", label: "Mint", accent: "oklch(0.818 0.119 164.69)", from: "oklch(0.951 0.077 156.636)", to: "oklch(0.903 0.16 159.13)", dot: ["oklch(0.989 0.016 166.743)", "oklch(0.916 0.133 161.803)", "oklch(0.773 0.154 161.739)"] },
+  { id: "cyan", label: "Cyan", accent: "oklch(0.818 0.118 205.454)", from: "oklch(0.951 0.07 197.139)", to: "oklch(0.885 0.148 199.644)", dot: ["oklch(0.985 0.014 202.46)", "oklch(0.9 0.116 202.109)", "oklch(0.775 0.132 202.261)"] },
+  { id: "blue", label: "Blue", accent: "oklch(0.798 0.106 250.479)", from: "oklch(0.929 0.036 242.973)", to: "oklch(0.849 0.08 244.376)", dot: ["oklch(0.984 0.006 255.474)", "oklch(0.873 0.066 247.211)", "oklch(0.757 0.132 246.811)"] },
+  { id: "violet", label: "Violet", accent: "oklch(0.806 0.107 294.748)", from: "oklch(0.925 0.036 287.363)", to: "oklch(0.838 0.086 289.571)", dot: ["oklch(0.987 0.007 295.454)", "oklch(0.871 0.069 292.239)", "oklch(0.757 0.136 291.898)"] },
+  { id: "pink", label: "Pink", accent: "oklch(0.818 0.118 344.849)", from: "oklch(0.93 0.05 337.46)", to: "oklch(0.85 0.112 339.145)", dot: ["oklch(0.989 0.005 345.276)", "oklch(0.865 0.095 342.151)", "oklch(0.773 0.154 341.598)"] },
+  { id: "coral", label: "Coral", accent: "oklch(0.806 0.11 24.532)", from: "oklch(0.917 0.042 16.158)", to: "oklch(0.846 0.084 19.872)", dot: ["oklch(0.984 0.006 17.266)", "oklch(0.872 0.068 21.902)", "oklch(0.756 0.146 21.614)"] },
+  { id: "orange", label: "Orange", accent: "oklch(0.819 0.118 60.077)", from: "oklch(0.93 0.04 51.458)", to: "oklch(0.843 0.1 54.597)", dot: ["oklch(0.987 0.006 59.654)", "oklch(0.868 0.084 56.407)", "oklch(0.771 0.154 56.516)"] },
 ] as const;
 
 export type Accent = (typeof ACCENTS)[number];

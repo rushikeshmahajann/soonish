@@ -60,7 +60,7 @@ export function SoonishIcon({ size = 40, className }: { size?: number; className
         width: size,
         height: size,
         borderRadius: "20.3125%",
-        background: "radial-gradient(circle at 50% 35%, #262626 0%, #171717 55%, #0F0F0F 100%)",
+        background: "radial-gradient(circle at 50% 35%, oklch(0.269 0 0) 0%, oklch(0.205 0 0) 55%, oklch(0.168 0 0) 100%)",
       }}
     >
       <svg width="100%" height="100%" viewBox="0 0 256 256" fill="none" role="img" aria-label="soonish" className="block">
@@ -74,9 +74,9 @@ export function SoonishIcon({ size = 40, className }: { size?: number; className
           r="1"
           gradientTransform="matrix(0.65 0.2 0.15 0.7 0.35 0.3)"
         >
-          <stop style={{ stopColor: "var(--brand-dot-light, #FFFFF0)" }} />
-          <stop offset="0.4" style={{ stopColor: "var(--brand-dot, #F5E97A)" }} />
-          <stop offset="1" style={{ stopColor: "var(--brand-dot-dark, #C8B820)" }} />
+          <stop style={{ stopColor: "var(--brand-dot-light, oklch(0.996 0.02 106.75))" }} />
+          <stop offset="0.4" style={{ stopColor: "var(--brand-dot, oklch(0.921 0.133 103.122))" }} />
+          <stop offset="1" style={{ stopColor: "var(--brand-dot-dark, oklch(0.772 0.155 102.784))" }} />
         </radialGradient>
         {/* Unlit bead: the export's #E0E0DB / #C7C9C4 / #949996 taken 0.18 darker
             in OKLCH lightness, so the "off" dots recede on the dark tile and
@@ -88,9 +88,9 @@ export function SoonishIcon({ size = 40, className }: { size?: number; className
           r="1"
           gradientTransform="matrix(0.65 0.2 0.15 0.7 0.35 0.3)"
         >
-          <stop stopColor="#A6A6A2" />
-          <stop offset="0.4" stopColor="#8F918C" />
-          <stop offset="1" stopColor="#5F6461" />
+          <stop stopColor="oklch(0.724 0.006 106.541)" />
+          <stop offset="0.4" stopColor="oklch(0.653 0.008 124.513)" />
+          <stop offset="1" stopColor="oklch(0.498 0.008 159.871)" />
         </radialGradient>
 
         {/* Lit dot: wide accent glow, a tighter darker drop, a white rim. */}
@@ -106,12 +106,12 @@ export function SoonishIcon({ size = 40, className }: { size?: number; className
           <feMorphology in="SourceAlpha" operator="dilate" radius="2.2" />
           <feGaussianBlur stdDeviation="6.6" />
           <feComposite in2="hardAlpha" operator="out" result="glowMask" />
-          <feFlood floodOpacity="0.6" style={{ floodColor: "var(--brand-dot, #F5E97A)" }} />
+          <feFlood floodOpacity="0.6" style={{ floodColor: "var(--brand-dot, oklch(0.921 0.133 103.122))" }} />
           <feComposite in2="glowMask" operator="in" result="glow" />
           <feOffset in="hardAlpha" dy="4.4" />
           <feGaussianBlur stdDeviation="4.4" />
           <feComposite in2="hardAlpha" operator="out" result="dropMask" />
-          <feFlood floodOpacity="0.4" style={{ floodColor: "var(--brand-dot-dark, #C8B820)" }} />
+          <feFlood floodOpacity="0.4" style={{ floodColor: "var(--brand-dot-dark, oklch(0.772 0.155 102.784))" }} />
           <feComposite in2="dropMask" operator="in" />
           <feBlend mode="normal" in2="glow" result="shadows" />
           <feBlend mode="normal" in="SourceGraphic" in2="shadows" result="shape" />

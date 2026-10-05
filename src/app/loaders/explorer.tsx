@@ -10,12 +10,12 @@ import { GROUPS, TOTAL } from "./groups";
  * per-loader pastels the package falls back to.
  */
 const PALETTE = [
-  { name: "yellow", value: "#FFE748" },
-  { name: "cream", value: "#FFF3B7" },
-  { name: "mint", value: "#BEE8DC" },
-  { name: "violet", value: "#C9D0F4" },
-  { name: "pink", value: "#EDC8CF" },
-  { name: "lime", value: "#D7E9BD" },
+  { name: "yellow", value: "oklch(0.921 0.17 100.422)" },
+  { name: "cream", value: "oklch(0.959 0.077 98.126)" },
+  { name: "mint", value: "oklch(0.898 0.047 175.965)" },
+  { name: "violet", value: "oklch(0.864 0.05 276.62)" },
+  { name: "pink", value: "oklch(0.866 0.043 5.208)" },
+  { name: "lime", value: "oklch(0.909 0.061 125.704)" },
 ] as const;
 
 export function LoaderExplorer() {
@@ -23,7 +23,7 @@ export function LoaderExplorer() {
 
   return (
     <>
-      <p className="mb-6 text-xs" style={{ color: "#52525b", fontFamily: "monospace" }}>
+      <p className="mb-6 text-xs" style={{ color: "oklch(0.442 0.015 285.786)", fontFamily: "monospace" }}>
         Workbench
       </p>
 
@@ -33,13 +33,13 @@ export function LoaderExplorer() {
         </h1>
         <span
           className="rounded-full px-2 py-0.5 text-xs font-medium"
-          style={{ background: "rgba(255,255,255,0.06)", color: "#d8d8d8", fontFamily: "monospace" }}
+          style={{ background: "oklch(1 0 0 / 0.06)", color: "oklch(0.882 0 0)", fontFamily: "monospace" }}
         >
           {TOTAL}
         </span>
       </div>
 
-      <p className="mb-6 max-w-2xl text-sm" style={{ color: "#71717a", lineHeight: 1.6 }}>
+      <p className="mb-6 max-w-2xl text-sm" style={{ color: "oklch(0.552 0.014 285.938)", lineHeight: 1.6 }}>
         Every loader in the package, grouped by category. Each one is a 5×5 grid of 25 divs —
         only the timing function and per-pixel delay differ. Tiles mount lazily as they scroll
         into view.
@@ -47,7 +47,7 @@ export function LoaderExplorer() {
 
       {/* Colour picker. Every loader takes `color`, so one value restyles all 91. */}
       <div className="mb-10 flex items-center gap-3">
-        <span className="text-xs" style={{ color: "#52525b", fontFamily: "monospace" }}>
+        <span className="text-xs" style={{ color: "oklch(0.442 0.015 285.786)", fontFamily: "monospace" }}>
           colour
         </span>
         <div className="flex gap-2">
@@ -69,7 +69,7 @@ export function LoaderExplorer() {
                     // The inner 2px ring is a gap punched in the page colour, so
                     // it has to track --bg or it reads as a mismatched dark ring.
                     ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${c.value}`
-                    : "0 0 0 1px rgba(255,255,255,0.18)",
+                    : "0 0 0 1px oklch(1 0 0 / 0.18)",
                   transform: active ? "scale(1.08)" : undefined,
                   cursor: "pointer",
                 }}
@@ -77,7 +77,7 @@ export function LoaderExplorer() {
             );
           })}
         </div>
-        <code className="text-xs" style={{ color: "#52525b", fontFamily: "monospace" }}>
+        <code className="text-xs" style={{ color: "oklch(0.442 0.015 285.786)", fontFamily: "monospace" }}>
           {color}
         </code>
       </div>
@@ -89,13 +89,13 @@ export function LoaderExplorer() {
             href={`#${g.id}`}
             className="rounded-md px-3 py-1.5 text-xs transition-colors"
             style={{
-              border: "1px solid rgba(255,255,255,0.1)",
-              background: "rgba(255,255,255,0.03)",
-              color: "#a1a1aa",
+              border: "1px solid oklch(1 0 0 / 0.1)",
+              background: "oklch(1 0 0 / 0.03)",
+              color: "oklch(0.712 0.013 286.067)",
               fontFamily: "monospace",
             }}
           >
-            {g.title} <span style={{ color: "#52525b" }}>{g.names.length}</span>
+            {g.title} <span style={{ color: "oklch(0.442 0.015 285.786)" }}>{g.names.length}</span>
           </a>
         ))}
       </nav>
@@ -108,12 +108,12 @@ export function LoaderExplorer() {
             </h2>
             <span
               className="rounded-full px-2 py-0.5 text-xs font-medium"
-              style={{ background: "rgba(255,255,255,0.06)", color: "#d8d8d8", fontFamily: "monospace" }}
+              style={{ background: "oklch(1 0 0 / 0.06)", color: "oklch(0.882 0 0)", fontFamily: "monospace" }}
             >
               {g.names.length}
             </span>
           </div>
-          <p className="mb-5 text-sm" style={{ color: "#71717a", lineHeight: 1.6 }}>
+          <p className="mb-5 text-sm" style={{ color: "oklch(0.552 0.014 285.938)", lineHeight: 1.6 }}>
             {g.desc}
           </p>
           {/* Span-driven: gap is derived so dots stay ~62% of cell pitch. */}
